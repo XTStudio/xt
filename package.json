@@ -1,0 +1,30 @@
+{
+  "name": "xtstudio",
+  "version": "0.0.1",
+  "description": "XTStudio makes it easy and fast to build beautiful mobile apps.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XTStudio/XTStudio.git"
+  },
+  "bin": {
+    "xt": "./index.js"
+  },
+  "author": "",
+  "license": "Apache License Version 2.0",
+  "bugs": {
+    "url": "https://github.com/XTStudio/XTStudio/issues"
+  },
+  "homepage": "https://github.com/XTStudio/XTStudio#readme",
+  "dependencies": {
+    "browserify": "^16.2.2",
+    "strip-json-comments": "^2.0.1",
+    "tinyify": "^2.4.3",
+    "tsify": "^4.0.0",
+    "typescript": "^3.0.1",
+    "watchify": "^3.11.0"
+  }
+}
