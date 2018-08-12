@@ -7,6 +7,45 @@ var fs = require('fs')
 var path = require('path')
 var strip_json_comments = require('strip-json-comments')
 
+class ProjectManager {
+
+    init() {
+        fs.mkdirSync('build')
+        fs.mkdirSync('res')
+        fs.mkdirSync('src')
+        fs.writeFileSync('src/main.ts', `
+            const main = new UIView
+        `)
+        fs.writeFileSync('tsconfig.json', `
+        {
+            "compilerOptions": {
+              "target": "es5",
+              "module": "commonjs",
+              "lib": [
+                "esnext",
+                "es2015.promise"
+              ],
+              "strict": true,
+              "noImplicitAny": true,
+              "strictNullChecks": true,
+              "noImplicitThis": true,
+              "alwaysStrict": true,
+              "types": [
+                "xtstudio"
+              ]
+            }
+        }
+        `)
+        const package = fs.readFileSync('package.json', { encoding: "utf-8" })
+        package.scripts = {
+            watch: './node_modules/.bin/xt watch',
+            build: './node_modules/.bin/xt build',
+        }
+        fs.writeFileSync('package.json', JSON.stringify(package))
+    }
+
+}
+
 class ResBundler {
 
     constructor() {
@@ -114,6 +153,9 @@ if (process.argv.includes('build')) {
 }
 else if (process.argv.includes('watch')) {
     srcBundler.watch()
+}
+else if (process.argv.includes('init')) {
+    new ProjectManager().init()
 }
 else {
     srcBundler.build()
