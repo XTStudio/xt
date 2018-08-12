@@ -13,29 +13,25 @@ class ProjectManager {
         fs.mkdirSync('build')
         fs.mkdirSync('res')
         fs.mkdirSync('src')
-        fs.writeFileSync('src/main.ts', `
-            const main = new UIView
-        `)
-        fs.writeFileSync('tsconfig.json', `
-        {
-            "compilerOptions": {
-              "target": "es5",
-              "module": "commonjs",
-              "lib": [
-                "esnext",
-                "es2015.promise"
-              ],
-              "strict": true,
-              "noImplicitAny": true,
-              "strictNullChecks": true,
-              "noImplicitThis": true,
-              "alwaysStrict": true,
-              "types": [
-                "xtstudio"
-              ]
-            }
-        }
-        `)
+        fs.writeFileSync('src/main.ts', `const main = new UIView`)
+        fs.writeFileSync('tsconfig.json', `{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "lib": [
+        "esnext",
+        "es2015.promise"
+        ],
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "types": [
+        "xtstudio"
+        ]
+    }
+}`)
         const pkg = JSON.parse(fs.readFileSync('package.json', { encoding: "utf-8" }))
         pkg.scripts = {
             watch: './node_modules/.bin/xt watch',
