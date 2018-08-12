@@ -26,6 +26,6 @@
     "typescript": "^3.0.1",
     "watchify": "^3.11.0"
   },
-  "typings": "./typings/index.d.ts",
-  "types": "./typings/index.d.ts"
+  "typings": "./types/index.d.ts",
+  "types": "./types/index.d.ts"
 }
