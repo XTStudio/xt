@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var browserify = require('browserify')
 var watchify = require('watchify')
 var tsify = require('tsify')
