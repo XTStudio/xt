@@ -36,12 +36,12 @@ class ProjectManager {
             }
         }
         `)
-        const package = fs.readFileSync('package.json', { encoding: "utf-8" })
-        package.scripts = {
+        const pkg = JSON.parse(fs.readFileSync('package.json', { encoding: "utf-8" }))
+        pkg.scripts = {
             watch: './node_modules/.bin/xt watch',
             build: './node_modules/.bin/xt build',
         }
-        fs.writeFileSync('package.json', JSON.stringify(package))
+        fs.writeFileSync('package.json', JSON.stringify(pkg))
     }
 
 }
