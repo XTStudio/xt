@@ -19,8 +19,8 @@ class ProjectManager {
         "target": "es5",
         "module": "commonjs",
         "lib": [
-        "esnext",
-        "es2015.promise"
+            "esnext",
+            "es2015.promise"
         ],
         "strict": true,
         "noImplicitAny": true,
@@ -28,7 +28,7 @@ class ProjectManager {
         "noImplicitThis": true,
         "alwaysStrict": true,
         "types": [
-        "xtstudio"
+            "xtstudio"
         ]
     }
 }`)
@@ -75,7 +75,7 @@ class ResBundler {
         return files.map((it) => {
             const content = this.contentCache[it] || fs.readFileSync(it).toString('base64')
             this.contentCache[it] = content
-            return `Bundle.js["${it.replace('res/', '')}"] = "${content}";`
+            return `Bundle.js.addResource("${it.replace('res/', '')}", "${content}");`
         }).join("\n")
     }
 
