@@ -575,6 +575,12 @@ declare class UIViewController {
     off<K extends keyof UIViewControllerEventMap>(type: K, listener: UIViewControllerEventMap[K]): this
 }
 
+declare class UINavigationBarViewController extends UIViewController {
+    navigationBarContentHeight: number
+    navigationBarInFront: boolean
+    navigationBar: UIView
+}
+
 declare class UINavigationController extends UIViewController {
     constructor(rootViewController?: UIViewController)
     pushViewController(viewController: UIViewController, animated?: boolean): void
