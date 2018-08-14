@@ -204,7 +204,7 @@ declare class UIButton extends UIView {
 
 declare class UIImageView extends UIView {
     image: UIImage | undefined
-    loadImageWithURLString(URLString: string, placeholder?: UIImage): void
+    loadImageWithURLString(URLString?: string, placeholder?: UIImage): void
 }
 
 declare class UILabel extends UIView {
