@@ -440,6 +440,38 @@ declare class UIScrollView extends UIView {
     off<K extends keyof UIScrollViewEventMap>(type: K, listener: UIScrollViewEventMap[K]): this
 }
 
+interface UIRefreshControlEventMap {
+    "refresh": (sender: UIRefreshControl) => void,
+}
+
+declare class UIRefreshControl extends UIView {
+    enabled: boolean
+    readonly refreshing: boolean
+    tintColor: UIColor
+    beginRefreshing(): void
+    endRefreshing(): void
+    // EventEmitter
+    on<K extends keyof UIRefreshControlEventMap>(type: K, listener: UIRefreshControlEventMap[K]): this
+    once<K extends keyof UIRefreshControlEventMap>(type: K, listener: UIRefreshControlEventMap[K]): this
+    off<K extends keyof UIRefreshControlEventMap>(type: K, listener: UIRefreshControlEventMap[K]): this
+}
+
+interface UIFetchMoreControlEventMap {
+    "fetch": (sender: UIFetchMoreControl) => void,
+}
+
+declare class UIFetchMoreControl extends UIView {
+    enabled: boolean
+    readonly fetching: boolean
+    tintColor: UIColor
+    beginFetching(): void
+    endFetching(): void
+    // EventEmitter
+    on<K extends keyof UIFetchMoreControlEventMap>(type: K, listener: UIFetchMoreControlEventMap[K]): this
+    once<K extends keyof UIFetchMoreControlEventMap>(type: K, listener: UIFetchMoreControlEventMap[K]): this
+    off<K extends keyof UIFetchMoreControlEventMap>(type: K, listener: UIFetchMoreControlEventMap[K]): this
+}
+
 declare class UIAlert {
     constructor(message: string, buttonText?: string)
     show(completed: () => void): void
