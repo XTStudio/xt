@@ -835,7 +835,7 @@ declare enum UIImageRenderingMode {
 }
 
 declare class UIImage {
-    constructor(options: { name?: string, base64?: string, renderingMode?: UIImageRenderingMode })
+    constructor(options: { name?: string, base64?: string, data?: Data, renderingMode?: UIImageRenderingMode })
     readonly size: Size
     readonly scale: number
 }
