@@ -127,6 +127,7 @@ declare class UIView {
     tag: number
     readonly superview: UIView | undefined
     readonly subviews: UIView[]
+    readonly window: UIWindow | undefined
     removeFromSuperview(): void
     insertSubviewAtIndex(view: UIView, index: number): void
     exchangeSubview(index1: number, index2: number): void
@@ -571,10 +572,17 @@ declare class UIStackView extends UIView {
     spacing: number
 }
 
+declare class UIWindow extends UIView {
+    rootViewController?: UIViewController
+    endEditing(): void
+}
+
 // View Controllers
 
 interface UIViewControllerEventMap {
     "viewWillLayoutSubviews": (sender: UIViewController) => void,
+    "keyboardWillShow": (keyboardRect: Rect, animationDuration: number) => void,
+    "keyboardWillHide": (animationDuration: number) => void,
 }
 
 declare class UIViewController {
