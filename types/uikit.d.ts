@@ -535,6 +535,21 @@ declare class UISlider extends UIView {
     off<K extends keyof UISliderEventMap>(type: K, listener: UISliderEventMap[K]): this
 }
 
+interface UIProgressViewEventMap {
+    "valueChanged": (sender: UIProgressView) => void,
+}
+
+declare class UIProgressView extends UIView {
+    progress: number
+    setProgress(value: number, animated: boolean): void
+    progressTintColor: UIColor | undefined
+    trackTintColor: UIColor | undefined
+    // EventEmitter
+    on<K extends keyof UIProgressViewEventMap>(type: K, listener: UIProgressViewEventMap[K]): this
+    once<K extends keyof UIProgressViewEventMap>(type: K, listener: UIProgressViewEventMap[K]): this
+    off<K extends keyof UIProgressViewEventMap>(type: K, listener: UIProgressViewEventMap[K]): this
+}
+
 interface UIWebViewEventMap {
     "newRequest": (request: URLRequest) => boolean,
     "didStart": () => void,
