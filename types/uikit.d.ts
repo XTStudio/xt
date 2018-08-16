@@ -127,6 +127,7 @@ declare class UIView {
     tag: number
     readonly superview: UIView | undefined
     readonly subviews: UIView[]
+    readonly window: UIWindow | undefined
     removeFromSuperview(): void
     insertSubviewAtIndex(view: UIView, index: number): void
     exchangeSubview(index1: number, index2: number): void
@@ -534,6 +535,21 @@ declare class UISlider extends UIView {
     off<K extends keyof UISliderEventMap>(type: K, listener: UISliderEventMap[K]): this
 }
 
+interface UIProgressViewEventMap {
+    "valueChanged": (sender: UIProgressView) => void,
+}
+
+declare class UIProgressView extends UIView {
+    progress: number
+    setProgress(value: number, animated: boolean): void
+    progressTintColor: UIColor | undefined
+    trackTintColor: UIColor | undefined
+    // EventEmitter
+    on<K extends keyof UIProgressViewEventMap>(type: K, listener: UIProgressViewEventMap[K]): this
+    once<K extends keyof UIProgressViewEventMap>(type: K, listener: UIProgressViewEventMap[K]): this
+    off<K extends keyof UIProgressViewEventMap>(type: K, listener: UIProgressViewEventMap[K]): this
+}
+
 interface UIWebViewEventMap {
     "newRequest": (request: URLRequest) => boolean,
     "didStart": () => void,
@@ -571,10 +587,17 @@ declare class UIStackView extends UIView {
     spacing: number
 }
 
+declare class UIWindow extends UIView {
+    rootViewController?: UIViewController
+    endEditing(): void
+}
+
 // View Controllers
 
 interface UIViewControllerEventMap {
     "viewWillLayoutSubviews": (sender: UIViewController) => void,
+    "keyboardWillShow": (keyboardRect: Rect, animationDuration: number) => void,
+    "keyboardWillHide": (animationDuration: number) => void,
 }
 
 declare class UIViewController {
