@@ -474,7 +474,7 @@ declare class UIFetchMoreControl extends UIView {
 
 declare class UIAlert {
     constructor(message: string, buttonText?: string)
-    show(completed: () => void): void
+    show(completed?: () => void): void
 }
 
 declare class UIPrompt {
