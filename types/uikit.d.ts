@@ -106,6 +106,11 @@ declare enum UIStackViewAlignment {
     trailing,
 }
 
+declare enum UIStatusBarStyle {
+    default,
+    lightContent,
+}
+
 // Interfaces
 
 declare interface Rect { x: number, y: number, width: number, height: number }
@@ -598,6 +603,7 @@ interface UIViewControllerEventMap {
     "viewWillLayoutSubviews": (sender: UIViewController) => void,
     "keyboardWillShow": (keyboardRect: Rect, animationDuration: number) => void,
     "keyboardWillHide": (animationDuration: number) => void,
+    "statusBarStyle": () => UIStatusBarStyle,
 }
 
 declare class UIViewController {
@@ -625,6 +631,7 @@ declare class UIViewController {
     readonly navigationItem: UINavigationItem
     readonly tabBarController: UITabBarController
     readonly tabBarItem: UITabBarItem
+    setNeedsStatusBarAppearanceUpdate(): void
     // EventEmitter
     on<K extends keyof UIViewControllerEventMap>(type: K, listener: UIViewControllerEventMap[K]): this
     once<K extends keyof UIViewControllerEventMap>(type: K, listener: UIViewControllerEventMap[K]): this
