@@ -114,45 +114,52 @@ class SrcBundler {
             .transform('uglifyify', { sourceMap: false })
     }
 
-    watch() {
+    watch(dest) {
         const b = this.createBrowserify()
         b.plugin(watchify)
             .on('update', () => {
-                b.bundle()
+                b.bundle(function () {
+                    console.log("✅ Built at: " + new Date())
+                })
                     .on('error', (error) => {
                         console.error(error)
                         process.exit(-1);
                     })
-                    .pipe(fs.createWriteStream('./build/app.js'));
-                console.log("Built at: " + new Date())
+                    .pipe(fs.createWriteStream(dest || './build/app.js'));
+                console.log("📌 Started at: " + new Date())
             })
-        b.bundle()
+        b.bundle(function () {
+            console.log("✅ Built at: " + new Date())
+        })
             .on('error', console.error)
-            .pipe(fs.createWriteStream('./build/app.js'));
-        console.log("Built at: " + new Date())
+            .pipe(fs.createWriteStream(dest || './build/app.js'))
+        console.log("📌 Started at: " + new Date())
     }
 
-    build() {
+    build(dest) {
         const b = this.createBrowserify()
-        b.bundle()
-            .pipe(fs.createWriteStream('./build/app.js'));
-        console.log("Built at: " + new Date())
+        b.bundle(function () {
+            console.log("✅ Built at: " + new Date())
+        })
+            .pipe(fs.createWriteStream(dest || './build/app.js'));
+        console.log("📌 Started at: " + new Date())
     }
 
 }
 
 const resBundler = new ResBundler()
 const srcBundler = new SrcBundler()
+const outputFile = process.argv[process.argv.indexOf("--output") + 1]
 
 if (process.argv.includes('build')) {
-    srcBundler.build()
+    srcBundler.build(outputFile)
 }
 else if (process.argv.includes('watch')) {
-    srcBundler.watch()
+    srcBundler.watch(outputFile)
 }
 else if (process.argv.includes('init')) {
     new ProjectManager().init()
 }
 else {
-    srcBundler.build()
+    srcBundler.build(outputFile)
 }
