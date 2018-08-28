@@ -157,6 +157,7 @@ declare class UIView {
     backgroundColor: UIColor | undefined
     alpha: number
     hidden: boolean
+    opaque: boolean
     contentMode: UIViewContentMode
     tintColor: UIColor
     tintColorDidChange(): void
