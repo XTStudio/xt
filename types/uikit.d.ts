@@ -725,7 +725,7 @@ declare class UIBarButtonItem {
 }
 
 interface UITabBarControllerEventMap extends UIViewControllerEventMap {
-    "onSelectedViewController": (sender: UITabBarController) => void,
+    "onSelectedViewController": (sender: UITabBarController, repeat: boolean) => void,
 }
 
 declare class UITabBarController extends UIViewController {
