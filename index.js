@@ -118,22 +118,42 @@ class SrcBundler {
         const b = this.createBrowserify()
         b.plugin(watchify)
             .on('update', () => {
-                b.bundle(function () {
-                    console.log("✅ Built at: " + new Date())
+                b.bundle(function (err) {
+                    if (!err) {
+                        console.log("✅ Built at: " + new Date())
+                    }
                 })
                     .on('error', (error) => {
-                        console.error(error)
-                        process.exit(-1);
+                        this.watchDelay(error, dest)
                     })
-                    .pipe(fs.createWriteStream(dest || './build/app.js'));
+                    .pipe(fs.createWriteStream(dest));
                 console.log("📌 Started at: " + new Date())
             })
-        b.bundle(function () {
-            console.log("✅ Built at: " + new Date())
+        b.bundle(function (err) {
+            if (!err) {
+                console.log("✅ Built at: " + new Date())
+            }
         })
-            .on('error', console.error)
-            .pipe(fs.createWriteStream(dest || './build/app.js'))
+            .on('error', (error) => {
+                this.watchDelay(error, dest)
+            })
+            .pipe(fs.createWriteStream(dest))
         console.log("📌 Started at: " + new Date())
+    }
+
+    watchDelay(error, dest) {
+        if (this.lastError === undefined || error.message !== this.lastError.message) {
+            this.lastError = error
+            console.error(error)
+            console.error("💔 Built failed: " + new Date())
+            console.log("🚥 Compiler will try after 5 second.")
+        }
+        else {
+            console.log("🚥 Still failed. Compiler will try after 5 second.")
+        }
+        setTimeout(function () {
+            this.watch(dest)
+        }.bind(this), 5000)
     }
 
     build(dest) {
@@ -141,7 +161,7 @@ class SrcBundler {
         b.bundle(function () {
             console.log("✅ Built at: " + new Date())
         })
-            .pipe(fs.createWriteStream(dest || './build/app.js'));
+            .pipe(fs.createWriteStream(dest));
         console.log("📌 Started at: " + new Date())
     }
 
@@ -149,7 +169,7 @@ class SrcBundler {
 
 const resBundler = new ResBundler()
 const srcBundler = new SrcBundler()
-const outputFile = process.argv[process.argv.indexOf("--output") + 1]
+const outputFile = process.argv.indexOf("--output") >= 0 ? process.argv[process.argv.indexOf("--output") + 1] : './build/app.js'
 
 if (process.argv.includes('build')) {
     srcBundler.build(outputFile)
