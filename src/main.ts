@@ -1,4 +1,5 @@
 /// <reference path="../types/index.d.ts" />
+declare var main: any
 
-const aView = new UIView
-aView.frame = { x: 0, y: 0, width: 100, height: 100 }
+main = new UIViewController
+main.view.backgroundColor = UIColor.yellow
