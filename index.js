@@ -5,7 +5,52 @@ var tsify = require('tsify')
 var through = require('through')
 var fs = require('fs')
 var path = require('path')
+var http = require('http')
 var strip_json_comments = require('strip-json-comments')
+var colors = require('colors/safe');
+
+(() => {
+    {
+        var originMethod = console.error
+        console.error = function () {
+            let args = []
+            for (let index = 0; index < arguments.length; index++) {
+                args.push(colors.red(arguments[index]))
+            }
+            originMethod.apply(undefined, args)
+        }
+    }
+    {
+        var originMethod = console.warn
+        console.warn = function () {
+            let args = []
+            for (let index = 0; index < arguments.length; index++) {
+                args.push(colors.yellow(arguments[index]))
+            }
+            originMethod.apply(undefined, args)
+        }
+    }
+    {
+        var originMethod = console.debug
+        console.debug = function () {
+            let args = []
+            for (let index = 0; index < arguments.length; index++) {
+                args.push(colors.blue(arguments[index]))
+            }
+            originMethod.apply(undefined, args)
+        }
+    }
+    {
+        var originMethod = console.info
+        console.info = function () {
+            let args = []
+            for (let index = 0; index < arguments.length; index++) {
+                args.push(colors.green(arguments[index]))
+            }
+            originMethod.apply(undefined, args)
+        }
+    }
+})()
 
 class ProjectManager {
 
@@ -120,6 +165,9 @@ class SrcBundler {
             .on('update', () => {
                 b.bundle(function (err) {
                     if (!err) {
+                        if (dest === "node_modules/.tmp/app.js") {
+                            fs.writeFileSync("node_modules/.tmp/app.js.version", new Date().getTime())
+                        }
                         console.log("✅ Built at: " + new Date())
                     }
                 })
@@ -131,6 +179,9 @@ class SrcBundler {
             })
         b.bundle(function (err) {
             if (!err) {
+                if (dest === "node_modules/.tmp/app.js") {
+                    fs.writeFileSync("node_modules/.tmp/app.js.version", new Date().getTime())
+                }
                 console.log("✅ Built at: " + new Date())
             }
         })
@@ -165,6 +216,58 @@ class SrcBundler {
         console.log("📌 Started at: " + new Date())
     }
 
+    debug(port) {
+        try {
+            fs.mkdirSync('node_modules/.tmp')
+        } catch (error) { }
+        this.watch('node_modules/.tmp/app.js')
+        http.createServer((request, response) => {
+            if (request.url === "/console") {
+                let body = '';
+                request.on('data', chunk => {
+                    body += chunk.toString();
+                });
+                request.on('end', () => {
+                    try {
+                        let params = JSON.parse(body)
+                        params.values.unshift("📝")
+                        console[params.type].apply(this, params.values)
+                    } catch (error) { }
+                    response.end('ok');
+                });
+            }
+            else if (request.url === "/version") {
+                response.end(fs.readFileSync("node_modules/.tmp/app.js.version", { encoding: "utf-8" }))
+            }
+            else if (request.url === "/source") {
+                response.end(fs.readFileSync("node_modules/.tmp/app.js", { encoding: "utf-8" }))
+            }
+            else {
+                response.end("")
+            }
+        }).listen(port)
+        this.printIPs(port)
+    }
+
+    printIPs(port) {
+        var os = require('os');
+        var ifaces = os.networkInterfaces();
+        Object.keys(ifaces).forEach(function (ifname) {
+            var alias = 0;
+            ifaces[ifname].forEach(function (iface) {
+                if ('IPv4' !== iface.family || iface.internal !== false) {
+                    return;
+                }
+                if (alias >= 1) {
+                    console.log("Debug Server", iface.address, port);
+                } else {
+                    console.log("Debug Server", iface.address, port);
+                }
+                ++alias;
+            });
+        });
+    }
+
 }
 
 const resBundler = new ResBundler()
@@ -176,6 +279,10 @@ if (process.argv.includes('build')) {
 }
 else if (process.argv.includes('watch')) {
     srcBundler.watch(outputFile)
+}
+else if (process.argv.includes('debug')) {
+    const port = process.argv.indexOf("--port") >= 0 ? process.argv[process.argv.indexOf("--port") + 1] : 8090
+    srcBundler.debug(port)
 }
 else if (process.argv.includes('init')) {
     new ProjectManager().init()
