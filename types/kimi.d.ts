@@ -9,3 +9,5 @@ declare class console {
     static error(message?: any, ...optionalParams: any[]): void;
     static debug(message?: any, ...optionalParams: any[]): void;
 }
+
+declare var global: { [key: string]: any }
