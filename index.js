@@ -202,7 +202,8 @@ class SrcBundler {
         else {
             console.log("🚥 Still failed. Compiler will try after 5 second.")
         }
-        setTimeout(function () {
+        clearTimeout(this.watchTimer)
+        this.watchTimer = setTimeout(function () {
             this.watch(dest)
         }.bind(this), 5000)
     }
