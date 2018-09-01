@@ -200,12 +200,8 @@ class SrcBundler {
             console.log("🚥 Compiler will try after 5 second.")
         }
         else {
-            console.log("🚥 Still failed. Compiler will try after 5 second.")
+            console.log("🚥 Still failed. Compiler will try after file changed.")
         }
-        clearTimeout(this.watchTimer)
-        this.watchTimer = setTimeout(function () {
-            this.watch(dest)
-        }.bind(this), 5000)
     }
 
     build(dest) {
