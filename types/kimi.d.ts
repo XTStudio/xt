@@ -1,5 +1,6 @@
 declare class KMCore {
-    static version: string
+    static readonly version: string
+    static readonly hostVersion: string
 }
 
 declare class console {
