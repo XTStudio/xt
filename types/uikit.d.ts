@@ -528,6 +528,14 @@ declare class UIConfirm {
     show(completed?: () => void, cancelled?: () => void): void
 }
 
+declare class UIActionSheet {
+    message: string | undefined
+    addRegularAction(title: string, acitonBlock?: () => void): void
+    addDangerAction(title: string, acitonBlock?: () => void): void
+    addCancelAction(title: string, acitonBlock?: () => void): void
+    show(): void
+}
+
 declare class UIActivityIndicatorView extends UIView {
     color: UIColor
     largeStyle: boolean
