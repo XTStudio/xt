@@ -219,27 +219,31 @@ class SrcBundler {
         } catch (error) { }
         this.watch('node_modules/.tmp/app.js')
         http.createServer((request, response) => {
-            if (request.url === "/console") {
-                let body = '';
-                request.on('data', chunk => {
-                    body += chunk.toString();
-                });
-                request.on('end', () => {
-                    try {
-                        let params = JSON.parse(body)
-                        params.values.unshift("📝")
-                        console[params.type].apply(this, params.values)
-                    } catch (error) { }
-                    response.end('ok');
-                });
-            }
-            else if (request.url === "/version") {
-                response.end(fs.readFileSync("node_modules/.tmp/app.js.version", { encoding: "utf-8" }))
-            }
-            else if (request.url === "/source") {
-                response.end(fs.readFileSync("node_modules/.tmp/app.js", { encoding: "utf-8" }))
-            }
-            else {
+            try {
+                if (request.url === "/console") {
+                    let body = '';
+                    request.on('data', chunk => {
+                        body += chunk.toString();
+                    });
+                    request.on('end', () => {
+                        try {
+                            let params = JSON.parse(body)
+                            params.values.unshift("📝")
+                            console[params.type].apply(this, params.values)
+                        } catch (error) { }
+                        response.end('ok');
+                    });
+                }
+                else if (request.url === "/version") {
+                    response.end(fs.readFileSync("node_modules/.tmp/app.js.version", { encoding: "utf-8" }))
+                }
+                else if (request.url === "/source") {
+                    response.end(fs.readFileSync("node_modules/.tmp/app.js", { encoding: "utf-8" }))
+                }
+                else {
+                    response.end("")
+                }
+            } catch (error) {
                 response.end("")
             }
         }).listen(port)
