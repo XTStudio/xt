@@ -225,7 +225,7 @@ declare class UIButton extends UIView {
     on<K extends keyof UIButtonEventMap>(type: K, listener: UIButtonEventMap[K]): this
     once<K extends keyof UIButtonEventMap>(type: K, listener: UIButtonEventMap[K]): this
     off<K extends keyof UIButtonEventMap>(type: K, listener: UIButtonEventMap[K]): this
-    emit<K extends keyof UIButtonEventMap>(type: K, listener: UIButtonEventMap[K]): this
+    emit<K extends keyof UIButtonEventMap>(type: K, ...args: any[]): this
 }
 
 declare class UIImageView extends UIView {
@@ -310,7 +310,7 @@ declare class UITextView extends UIView {
     on<K extends keyof UITextViewEventMap>(type: K, listener: UITextViewEventMap[K]): this
     once<K extends keyof UITextViewEventMap>(type: K, listener: UITextViewEventMap[K]): this
     off<K extends keyof UITextViewEventMap>(type: K, listener: UITextViewEventMap[K]): this
-    emit<K extends keyof UITextViewEventMap>(type: K, listener: UITextViewEventMap[K]): this
+    emit<K extends keyof UITextViewEventMap>(type: K, ...args: any[]): this
 }
 
 interface UICollectionViewEventMap extends UIScrollViewEventMap {
@@ -335,7 +335,7 @@ declare class UICollectionView extends UIScrollView {
     on<K extends keyof UICollectionViewEventMap>(type: K, listener: UICollectionViewEventMap[K]): this
     once<K extends keyof UICollectionViewEventMap>(type: K, listener: UICollectionViewEventMap[K]): this
     off<K extends keyof UICollectionViewEventMap>(type: K, listener: UICollectionViewEventMap[K]): this
-    emit<K extends keyof UICollectionViewEventMap>(type: K, listener: UICollectionViewEventMap[K]): this
+    emit<K extends keyof UICollectionViewEventMap>(type: K, ...args: any[]): this
 }
 
 interface UICollectionViewCellEventMap extends BaseEventMap {
@@ -351,7 +351,7 @@ declare class UICollectionViewCell extends UIView {
     on<K extends keyof UICollectionViewCellEventMap>(type: K, listener: UICollectionViewCellEventMap[K]): this
     once<K extends keyof UICollectionViewCellEventMap>(type: K, listener: UICollectionViewCellEventMap[K]): this
     off<K extends keyof UICollectionViewCellEventMap>(type: K, listener: UICollectionViewCellEventMap[K]): this
-    emit<K extends keyof UICollectionViewCellEventMap>(type: K, listener: UICollectionViewCellEventMap[K]): this
+    emit<K extends keyof UICollectionViewCellEventMap>(type: K, ...args: any[]): this
 }
 
 declare class UICollectionViewLayout {
@@ -385,7 +385,7 @@ declare class UICollectionViewFlowLayout extends UICollectionViewLayout {
     on<K extends keyof UICollectionViewFlowLayoutEventMap>(type: K, listener: UICollectionViewFlowLayoutEventMap[K]): this
     once<K extends keyof UICollectionViewFlowLayoutEventMap>(type: K, listener: UICollectionViewFlowLayoutEventMap[K]): this
     off<K extends keyof UICollectionViewFlowLayoutEventMap>(type: K, listener: UICollectionViewFlowLayoutEventMap[K]): this
-    emit<K extends keyof UICollectionViewFlowLayoutEventMap>(type: K, listener: UICollectionViewFlowLayoutEventMap[K]): this
+    emit<K extends keyof UICollectionViewFlowLayoutEventMap>(type: K, ...args: any[]): this
 }
 
 interface UITableViewEventMap extends UIScrollViewEventMap {
@@ -417,7 +417,7 @@ declare class UITableView extends UIScrollView {
     on<K extends keyof UITableViewEventMap>(type: K, listener: UITableViewEventMap[K]): this
     once<K extends keyof UITableViewEventMap>(type: K, listener: UITableViewEventMap[K]): this
     off<K extends keyof UITableViewEventMap>(type: K, listener: UITableViewEventMap[K]): this
-    emit<K extends keyof UITableViewEventMap>(type: K, listener: UITableViewEventMap[K]): this
+    emit<K extends keyof UITableViewEventMap>(type: K, ...args: any[]): this
 }
 
 interface UITableViewCellEventMap extends BaseEventMap {
@@ -434,7 +434,7 @@ declare class UITableViewCell extends UIView {
     on<K extends keyof UITableViewCellEventMap>(type: K, listener: UITableViewCellEventMap[K]): this
     once<K extends keyof UITableViewCellEventMap>(type: K, listener: UITableViewCellEventMap[K]): this
     off<K extends keyof UITableViewCellEventMap>(type: K, listener: UITableViewCellEventMap[K]): this
-    emit<K extends keyof UITableViewCellEventMap>(type: K, listener: UITableViewCellEventMap[K]): this
+    emit<K extends keyof UITableViewCellEventMap>(type: K, ...args: any[]): this
 }
 
 interface UIScrollViewEventMap extends BaseEventMap {
@@ -470,7 +470,7 @@ declare class UIScrollView extends UIView {
     on<K extends keyof UIScrollViewEventMap>(type: K, listener: UIScrollViewEventMap[K]): this
     once<K extends keyof UIScrollViewEventMap>(type: K, listener: UIScrollViewEventMap[K]): this
     off<K extends keyof UIScrollViewEventMap>(type: K, listener: UIScrollViewEventMap[K]): this
-    emit<K extends keyof UIScrollViewEventMap>(type: K, listener: UIScrollViewEventMap[K]): this
+    emit<K extends keyof UIScrollViewEventMap>(type: K, ...args: any[]): this
 }
 
 interface UIRefreshControlEventMap extends BaseEventMap {
@@ -487,7 +487,7 @@ declare class UIRefreshControl extends UIView {
     on<K extends keyof UIRefreshControlEventMap>(type: K, listener: UIRefreshControlEventMap[K]): this
     once<K extends keyof UIRefreshControlEventMap>(type: K, listener: UIRefreshControlEventMap[K]): this
     off<K extends keyof UIRefreshControlEventMap>(type: K, listener: UIRefreshControlEventMap[K]): this
-    emit<K extends keyof UIRefreshControlEventMap>(type: K, listener: UIRefreshControlEventMap[K]): this
+    emit<K extends keyof UIRefreshControlEventMap>(type: K, ...args: any[]): this
 }
 
 interface UIFetchMoreControlEventMap extends BaseEventMap {
@@ -504,7 +504,7 @@ declare class UIFetchMoreControl extends UIView {
     on<K extends keyof UIFetchMoreControlEventMap>(type: K, listener: UIFetchMoreControlEventMap[K]): this
     once<K extends keyof UIFetchMoreControlEventMap>(type: K, listener: UIFetchMoreControlEventMap[K]): this
     off<K extends keyof UIFetchMoreControlEventMap>(type: K, listener: UIFetchMoreControlEventMap[K]): this
-    emit<K extends keyof UIFetchMoreControlEventMap>(type: K, listener: UIFetchMoreControlEventMap[K]): this
+    emit<K extends keyof UIFetchMoreControlEventMap>(type: K, ...args: any[]): this
 }
 
 declare class UIAlert {
@@ -557,7 +557,7 @@ declare class UISwitch extends UIView {
     on<K extends keyof UISwitchEventMap>(type: K, listener: UISwitchEventMap[K]): this
     once<K extends keyof UISwitchEventMap>(type: K, listener: UISwitchEventMap[K]): this
     off<K extends keyof UISwitchEventMap>(type: K, listener: UISwitchEventMap[K]): this
-    emit<K extends keyof UISwitchEventMap>(type: K, listener: UISwitchEventMap[K]): this
+    emit<K extends keyof UISwitchEventMap>(type: K, ...args: any[]): this
 }
 
 interface UISliderEventMap extends BaseEventMap {
@@ -576,7 +576,7 @@ declare class UISlider extends UIView {
     on<K extends keyof UISliderEventMap>(type: K, listener: UISliderEventMap[K]): this
     once<K extends keyof UISliderEventMap>(type: K, listener: UISliderEventMap[K]): this
     off<K extends keyof UISliderEventMap>(type: K, listener: UISliderEventMap[K]): this
-    emit<K extends keyof UISliderEventMap>(type: K, listener: UISliderEventMap[K]): this
+    emit<K extends keyof UISliderEventMap>(type: K, ...args: any[]): this
 }
 
 interface UIProgressViewEventMap extends BaseEventMap {
@@ -592,7 +592,7 @@ declare class UIProgressView extends UIView {
     on<K extends keyof UIProgressViewEventMap>(type: K, listener: UIProgressViewEventMap[K]): this
     once<K extends keyof UIProgressViewEventMap>(type: K, listener: UIProgressViewEventMap[K]): this
     off<K extends keyof UIProgressViewEventMap>(type: K, listener: UIProgressViewEventMap[K]): this
-    emit<K extends keyof UIProgressViewEventMap>(type: K, listener: UIProgressViewEventMap[K]): this
+    emit<K extends keyof UIProgressViewEventMap>(type: K, ...args: any[]): this
 }
 
 interface UIWebViewEventMap extends BaseEventMap {
@@ -618,7 +618,7 @@ declare class UIWebView extends UIView {
     on<K extends keyof UIWebViewEventMap>(type: K, listener: UIWebViewEventMap[K]): this
     once<K extends keyof UIWebViewEventMap>(type: K, listener: UIWebViewEventMap[K]): this
     off<K extends keyof UIWebViewEventMap>(type: K, listener: UIWebViewEventMap[K]): this
-    emit<K extends keyof UIWebViewEventMap>(type: K, listener: UIWebViewEventMap[K]): this
+    emit<K extends keyof UIWebViewEventMap>(type: K, ...args: any[]): this
 }
 
 declare class UIStackView extends UIView {
@@ -678,7 +678,7 @@ declare class UIViewController {
     on<K extends keyof UIViewControllerEventMap>(type: K, listener: UIViewControllerEventMap[K]): this
     once<K extends keyof UIViewControllerEventMap>(type: K, listener: UIViewControllerEventMap[K]): this
     off<K extends keyof UIViewControllerEventMap>(type: K, listener: UIViewControllerEventMap[K]): this
-    emit<K extends keyof UIViewControllerEventMap>(type: K, listener: UIViewControllerEventMap[K]): this
+    emit<K extends keyof UIViewControllerEventMap>(type: K, ...args: any[]): this
 }
 
 declare class UINavigationBarViewController extends UIViewController {
@@ -730,7 +730,7 @@ declare class UIBarButtonItem {
     on<K extends keyof UIBarButtonItemEventMap>(type: K, listener: UIBarButtonItemEventMap[K]): this
     once<K extends keyof UIBarButtonItemEventMap>(type: K, listener: UIBarButtonItemEventMap[K]): this
     off<K extends keyof UIBarButtonItemEventMap>(type: K, listener: UIBarButtonItemEventMap[K]): this
-    emit<K extends keyof UIBarButtonItemEventMap>(type: K, listener: UIBarButtonItemEventMap[K]): this
+    emit<K extends keyof UIBarButtonItemEventMap>(type: K, ...args: any[]): this
 }
 
 interface UITabBarControllerEventMap extends UIViewControllerEventMap {
@@ -746,7 +746,7 @@ declare class UITabBarController extends UIViewController {
     on<K extends keyof UITabBarControllerEventMap>(type: K, listener: UITabBarControllerEventMap[K]): this
     once<K extends keyof UITabBarControllerEventMap>(type: K, listener: UITabBarControllerEventMap[K]): this
     off<K extends keyof UITabBarControllerEventMap>(type: K, listener: UITabBarControllerEventMap[K]): this
-    emit<K extends keyof UITabBarControllerEventMap>(type: K, listener: UITabBarControllerEventMap[K]): this
+    emit<K extends keyof UITabBarControllerEventMap>(type: K, ...args: any[]): this
 }
 
 declare class UITabBar extends UIView {
@@ -780,7 +780,7 @@ declare class UIPageViewController extends UIViewController {
     on<K extends keyof UIPageViewControllerEventMap>(type: K, listener: UIPageViewControllerEventMap[K]): this
     once<K extends keyof UIPageViewControllerEventMap>(type: K, listener: UIPageViewControllerEventMap[K]): this
     off<K extends keyof UIPageViewControllerEventMap>(type: K, listener: UIPageViewControllerEventMap[K]): this
-    emit<K extends keyof UIPageViewControllerEventMap>(type: K, listener: UIPageViewControllerEventMap[K]): this
+    emit<K extends keyof UIPageViewControllerEventMap>(type: K, ...args: any[]): this
 }
 
 // Other Classes
@@ -821,7 +821,7 @@ declare class UITapGestureRecognizer extends UIGestureRecognizer {
     on<K extends keyof UITapGestureRecognizerEventMap>(type: K, listener: UITapGestureRecognizerEventMap[K]): this
     once<K extends keyof UITapGestureRecognizerEventMap>(type: K, listener: UITapGestureRecognizerEventMap[K]): this
     off<K extends keyof UITapGestureRecognizerEventMap>(type: K, listener: UITapGestureRecognizerEventMap[K]): this
-    emit<K extends keyof UITapGestureRecognizerEventMap>(type: K, listener: UITapGestureRecognizerEventMap[K]): this
+    emit<K extends keyof UITapGestureRecognizerEventMap>(type: K, ...args: any[]): this
 }
 
 interface UILongPressGestureRecognizerEventMap extends BaseEventMap {
@@ -840,7 +840,7 @@ declare class UILongPressGestureRecognizer extends UIGestureRecognizer {
     on<K extends keyof UILongPressGestureRecognizer>(type: K, listener: UILongPressGestureRecognizer[K]): this
     once<K extends keyof UILongPressGestureRecognizer>(type: K, listener: UILongPressGestureRecognizer[K]): this
     off<K extends keyof UILongPressGestureRecognizer>(type: K, listener: UILongPressGestureRecognizer[K]): this
-    emit<K extends keyof UILongPressGestureRecognizer>(type: K, listener: UILongPressGestureRecognizer[K]): this
+    emit<K extends keyof UILongPressGestureRecognizer>(type: K, ...args: any[]): this
 }
 
 interface UIPanGestureRecognizerEventMap extends BaseEventMap {
@@ -860,7 +860,7 @@ declare class UIPanGestureRecognizer extends UIGestureRecognizer {
     on<K extends keyof UIPanGestureRecognizerEventMap>(type: K, listener: UIPanGestureRecognizerEventMap[K]): this
     once<K extends keyof UIPanGestureRecognizerEventMap>(type: K, listener: UIPanGestureRecognizerEventMap[K]): this
     off<K extends keyof UIPanGestureRecognizerEventMap>(type: K, listener: UIPanGestureRecognizerEventMap[K]): this
-    emit<K extends keyof UIPanGestureRecognizerEventMap>(type: K, listener: UIPanGestureRecognizerEventMap[K]): this
+    emit<K extends keyof UIPanGestureRecognizerEventMap>(type: K, ...args: any[]): this
 }
 
 interface UIPinchGestureRecognizerEventMap extends BaseEventMap {
@@ -877,7 +877,7 @@ declare class UIPinchGestureRecognizer extends UIGestureRecognizer {
     on<K extends keyof UIPinchGestureRecognizerEventMap>(type: K, listener: UIPinchGestureRecognizerEventMap[K]): this
     once<K extends keyof UIPinchGestureRecognizerEventMap>(type: K, listener: UIPinchGestureRecognizerEventMap[K]): this
     off<K extends keyof UIPinchGestureRecognizerEventMap>(type: K, listener: UIPinchGestureRecognizerEventMap[K]): this
-    emit<K extends keyof UIPinchGestureRecognizerEventMap>(type: K, listener: UIPinchGestureRecognizerEventMap[K]): this
+    emit<K extends keyof UIPinchGestureRecognizerEventMap>(type: K, ...args: any[]): this
 }
 
 interface UIRotationGestureRecognizerEventMap extends BaseEventMap {
@@ -894,7 +894,7 @@ declare class UIRotationGestureRecognizer extends UIGestureRecognizer {
     on<K extends keyof UIRotationGestureRecognizerEventMap>(type: K, listener: UIRotationGestureRecognizerEventMap[K]): this
     once<K extends keyof UIRotationGestureRecognizerEventMap>(type: K, listener: UIRotationGestureRecognizerEventMap[K]): this
     off<K extends keyof UIRotationGestureRecognizerEventMap>(type: K, listener: UIRotationGestureRecognizerEventMap[K]): this
-    emit<K extends keyof UIRotationGestureRecognizerEventMap>(type: K, listener: UIRotationGestureRecognizerEventMap[K]): this
+    emit<K extends keyof UIRotationGestureRecognizerEventMap>(type: K, ...args: any[]): this
 }
 
 declare class UIColor {
