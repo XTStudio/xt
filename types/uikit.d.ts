@@ -600,6 +600,7 @@ interface UIWebViewEventMap extends BaseEventMap {
     "didStart": () => void,
     "didFinish": () => void,
     "didFail": (error: Error) => void,
+    "message": (message: string) => void,
 }
 
 declare class UIWebView extends UIView {
