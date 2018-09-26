@@ -837,10 +837,10 @@ declare class UILongPressGestureRecognizer extends UIGestureRecognizer {
     minimumPressDuration: number
     allowableMovement: number
     // EventEmitter
-    on<K extends keyof UILongPressGestureRecognizer>(type: K, listener: UILongPressGestureRecognizer[K]): this
-    once<K extends keyof UILongPressGestureRecognizer>(type: K, listener: UILongPressGestureRecognizer[K]): this
-    off<K extends keyof UILongPressGestureRecognizer>(type: K, listener: UILongPressGestureRecognizer[K]): this
-    emit<K extends keyof UILongPressGestureRecognizer>(type: K, ...args: any[]): this
+    on<K extends keyof UILongPressGestureRecognizerEventMap>(type: K, listener: UILongPressGestureRecognizerEventMap[K]): this
+    once<K extends keyof UILongPressGestureRecognizerEventMap>(type: K, listener: UILongPressGestureRecognizerEventMap[K]): this
+    off<K extends keyof UILongPressGestureRecognizerEventMap>(type: K, listener: UILongPressGestureRecognizerEventMap[K]): this
+    emit<K extends keyof UILongPressGestureRecognizerEventMap>(type: K, ...args: any[]): this
 }
 
 interface UIPanGestureRecognizerEventMap extends BaseEventMap {
