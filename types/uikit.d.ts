@@ -1003,3 +1003,13 @@ declare class UIBezierPath {
     removeAllPoints(): void
     appendPath(path: UIBezierPath): void
 }
+
+declare class UIPasteboard {
+    static readonly shared: UIPasteboard
+    string: string | undefined
+}
+
+declare class UIMenu {
+    addMenuItem(title: string, actionBlock:() => void): void
+    show(inView: UIView): void
+}
