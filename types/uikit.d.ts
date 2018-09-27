@@ -146,6 +146,7 @@ declare class UIView {
     bounds: Rect
     center: Point
     transform: AffineTransform
+    touchAreaInsets: EdgeInsets
     // Hierarchy
     tag: number
     readonly superview: UIView | undefined
