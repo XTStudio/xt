@@ -628,7 +628,7 @@ declare class UIStackView extends UIView {
     addArrangedSubview(view: UIView): void
     removeArrangedSubview(view: UIView): void
     insertArrangedSubview(view: UIView, atIndex: number): void
-    layoutArrangedSubview(subview: UIView, size: { width?: number, height?: number }): void
+    layoutArrangedSubview(subview: UIView, size?: { width?: number, height?: number } | undefined): void
     axis: UILayoutConstraintAxis
     distribution: UIStackViewDistribution
     alignment: UIStackViewAlignment
