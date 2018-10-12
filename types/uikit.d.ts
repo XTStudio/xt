@@ -131,22 +131,22 @@ declare enum UIStatusBarStyle {
 
 // Interfaces
 
-declare interface Rect { x: number, y: number, width: number, height: number }
-declare interface Point { x: number, y: number }
-declare interface Size { width: number, height: number }
-declare interface AffineTransform { a: number, b: number, c: number, d: number, tx: number, ty: number }
-declare interface EdgeInsets { top: number, left: number, bottom: number, right: number }
-declare interface Range { location: number, length: number }
+declare interface UIRect { x: number, y: number, width: number, height: number }
+declare interface UIPoint { x: number, y: number }
+declare interface UISize { width: number, height: number }
+declare interface UIAffineTransform { a: number, b: number, c: number, d: number, tx: number, ty: number }
+declare interface UIEdgeInsets { top: number, left: number, bottom: number, right: number }
+declare interface UIRange { location: number, length: number }
 
 // Views
 
 declare class UIView {
     readonly layer: CALayer
-    frame: Rect
-    bounds: Rect
-    center: Point
-    transform: AffineTransform
-    touchAreaInsets: EdgeInsets
+    frame: UIRect
+    bounds: UIRect
+    center: UIPoint
+    transform: UIAffineTransform
+    touchAreaInsets: UIEdgeInsets
     // Hierarchy
     tag: number
     readonly superview: UIView | undefined
@@ -219,9 +219,9 @@ declare class UIButton extends UIView {
     setTitleFont(font: UIFont): void
     setImage(image: UIImage | undefined, state: UIControlState): void
     setAttributedTitle(title: UIAttributedString | undefined, state: UIControlState): void
-    contentEdgeInsets: EdgeInsets
-    titleEdgeInsets: EdgeInsets
-    imageEdgeInsets: EdgeInsets
+    contentEdgeInsets: UIEdgeInsets
+    titleEdgeInsets: UIEdgeInsets
+    imageEdgeInsets: UIEdgeInsets
     // EventEmitter
     on<K extends keyof UIButtonEventMap>(type: K, listener: UIButtonEventMap[K]): this
     once<K extends keyof UIButtonEventMap>(type: K, listener: UIButtonEventMap[K]): this
@@ -249,7 +249,7 @@ interface UITextFieldEventMap {
     "didBeginEditing": (sender: UITextField) => void,
     "shouldEndEditing": (sender: UITextField) => boolean,
     "didEndEditing": (sender: UITextField) => void,
-    "shouldChange": (sender: UITextField, charactersInRange: Range, replacementString: string) => boolean,
+    "shouldChange": (sender: UITextField, charactersInRange: UIRange, replacementString: string) => boolean,
     "shouldClear": (sender: UITextField) => boolean,
     "shouldReturn": (sender: UITextField) => boolean,
 }
@@ -287,7 +287,7 @@ interface UITextViewEventMap extends BaseEventMap {
     "didBeginEditing": (sender: UITextView) => void,
     "shouldEndEditing": (sender: UITextView) => boolean,
     "didEndEditing": (sender: UITextView) => void,
-    "shouldChange": (sender: UITextView, charactersInRange: Range, replacementString: string) => boolean,
+    "shouldChange": (sender: UITextView, charactersInRange: UIRange, replacementString: string) => boolean,
 }
 
 declare class UITextView extends UIView {
@@ -298,7 +298,7 @@ declare class UITextView extends UIView {
     editable: boolean
     selectable: boolean
     readonly editing: boolean
-    scrollRangeToVisible(range: Range): void
+    scrollRangeToVisible(range: UIRange): void
     focus(): void
     blur(): void
     autocapitalizationType: UITextAutocapitalizationType
@@ -366,21 +366,21 @@ declare enum UICollectionViewScrollDirection {
 }
 
 interface UICollectionViewFlowLayoutEventMap extends BaseEventMap {
-    "sizeForItem": (indexPath: UIIndexPath) => Size,
-    "insetForSection": (inSection: number) => EdgeInsets,
+    "sizeForItem": (indexPath: UIIndexPath) => UISize,
+    "insetForSection": (inSection: number) => UIEdgeInsets,
     "minimumLineSpacing": (inSection: number) => number,
     "minimumInteritemSpacing": (inSection: number) => number,
-    "referenceSizeForHeader": (inSection: number) => Size,
-    "referenceSizeForFooter": (inSection: number) => Size,
+    "referenceSizeForHeader": (inSection: number) => UISize,
+    "referenceSizeForFooter": (inSection: number) => UISize,
 }
 
 declare class UICollectionViewFlowLayout extends UICollectionViewLayout {
     minimumLineSpacing: number
     minimumInteritemSpacing: number
-    itemSize: Size
-    headerReferenceSize: Size
-    footerReferenceSize: Size
-    sectionInset: EdgeInsets
+    itemSize: UISize
+    headerReferenceSize: UISize
+    footerReferenceSize: UISize
+    sectionInset: UIEdgeInsets
     scrollDirection: UICollectionViewScrollDirection
     // EventEmitter
     on<K extends keyof UICollectionViewFlowLayoutEventMap>(type: K, listener: UICollectionViewFlowLayoutEventMap[K]): this
@@ -406,7 +406,7 @@ declare class UITableView extends UIScrollView {
     tableHeaderView: UIView | undefined
     tableFooterView: UIView | undefined
     separatorColor: UIColor | undefined
-    separatorInset: EdgeInsets
+    separatorInset: UIEdgeInsets
     allowsSelection: boolean
     allowsMultipleSelection: boolean
     register(initializer: (context: any) => UITableViewCell, reuseIdentifier: string): void
@@ -441,7 +441,7 @@ declare class UITableViewCell extends UIView {
 interface UIScrollViewEventMap extends BaseEventMap {
     "didScroll": (sender: UIScrollView) => void,
     "willBeginDragging": (sender: UIScrollView) => void,
-    "willEndDragging": (sender: UIScrollView, velocity: Point) => Point | undefined,
+    "willEndDragging": (sender: UIScrollView, velocity: UIPoint) => UIPoint | undefined,
     "didEndDragging": (sender: UIScrollView, decelerate: boolean) => void,
     "willBeginDecelerating": (sender: UIScrollView) => void,
     "didEndDecelerating": (sender: UIScrollView) => void,
@@ -450,9 +450,9 @@ interface UIScrollViewEventMap extends BaseEventMap {
 }
 
 declare class UIScrollView extends UIView {
-    contentOffset: Point
-    contentSize: Size
-    contentInset: EdgeInsets
+    contentOffset: UIPoint
+    contentSize: UISize
+    contentInset: UIEdgeInsets
     directionalLockEnabled: boolean
     bounces: boolean
     alwaysBounceVertical: boolean
@@ -461,8 +461,8 @@ declare class UIScrollView extends UIView {
     scrollEnabled: boolean
     showsHorizontalScrollIndicator: boolean
     showsVerticalScrollIndicator: boolean
-    setContentOffset(contentOffset: Point, animated: boolean): void
-    scrollRectToVisible(rect: Rect, animated: boolean): void
+    setContentOffset(contentOffset: UIPoint, animated: boolean): void
+    scrollRectToVisible(rect: UIRect, animated: boolean): void
     readonly tracking: boolean
     readonly dragging: boolean
     readonly decelerating: boolean
@@ -644,7 +644,7 @@ declare class UIWindow extends UIView {
 
 interface UIViewControllerEventMap extends BaseEventMap {
     "viewWillLayoutSubviews": (sender: UIViewController) => void,
-    "keyboardWillShow": (keyboardRect: Rect, animationDuration: number) => void,
+    "keyboardWillShow": (keyboardRect: UIRect, animationDuration: number) => void,
     "keyboardWillHide": (animationDuration: number) => void,
     "statusBarStyle": () => UIStatusBarStyle,
 }
@@ -652,7 +652,7 @@ interface UIViewControllerEventMap extends BaseEventMap {
 declare class UIViewController {
     title: string
     view: UIView
-    safeAreaInsets: EdgeInsets
+    safeAreaInsets: UIEdgeInsets
     viewDidLoad(): void
     viewWillAppear(animated: boolean): void
     viewDidAppear(animated: boolean): void
@@ -761,7 +761,7 @@ declare class UITabBarItem {
     title: string | undefined
     image: UIImage | undefined
     selectedImage: UIImage | undefined
-    imageInsets: EdgeInsets
+    imageInsets: UIEdgeInsets
 }
 
 interface UIPageViewControllerEventMap extends UIViewControllerEventMap {
@@ -808,7 +808,7 @@ declare class UIGestureRecognizer {
     readonly view: UIView | undefined
     requiresExclusiveTouchType: boolean
     requireGestureRecognizerToFail(otherGestureRecognizer: UIGestureRecognizer): void
-    locationInView(view: UIView): Point
+    locationInView(view: UIView): UIPoint
 }
 
 interface UITapGestureRecognizerEventMap extends BaseEventMap {
@@ -854,9 +854,9 @@ interface UIPanGestureRecognizerEventMap extends BaseEventMap {
 declare class UIPanGestureRecognizer extends UIGestureRecognizer {
     minimumNumberOfTouches: number
     maximumNumberOfTouches: number
-    translationInView(view?: UIView): Point
-    setTranslation(translate: Point, inView?: UIView): void
-    velocityInView(view?: UIView): Point
+    translationInView(view?: UIView): UIPoint
+    setTranslation(translate: UIPoint, inView?: UIView): void
+    velocityInView(view?: UIView): UIPoint
     // EventEmitter
     on<K extends keyof UIPanGestureRecognizerEventMap>(type: K, listener: UIPanGestureRecognizerEventMap[K]): this
     once<K extends keyof UIPanGestureRecognizerEventMap>(type: K, listener: UIPanGestureRecognizerEventMap[K]): this
@@ -926,42 +926,42 @@ declare enum UIImageRenderingMode {
 
 declare class UIImage {
     constructor(options: { name?: string, base64?: string, data?: Data, renderingMode?: UIImageRenderingMode })
-    readonly size: Size
+    readonly size: UISize
     readonly scale: number
 }
 
 declare class UIAttributedString {
     constructor(str: string, attributes: { [key: string]: any })  // attributes -> key: UIAttributedStringKey
-    measure(inSize: Size): Rect
+    measure(inSize: UISize): UIRect
     mutable(): UIMutableAttributedString
 }
 
 declare class UIMutableAttributedString extends UIAttributedString {
     constructor(str: string, attributes: { [key: string]: any })  // attributes -> key: UIAttributedStringKey
-    replaceCharacters(inRange: Range, withString: string): void
-    setAttributes(attributes: { [key: string]: any }, range: Range): void
-    addAttribute(attrName: string, value: any, range: Range): void
-    addAttributes(attributes: { [key: string]: any }, range: Range): void
-    removeAttribute(attrName: string, range: Range): void
-    replaceCharactersWithAttributedString(inRange: Range, withAttributedString: UIAttributedString): void
+    replaceCharacters(inRange: UIRange, withString: string): void
+    setAttributes(attributes: { [key: string]: any }, range: UIRange): void
+    addAttribute(attrName: string, value: any, range: UIRange): void
+    addAttributes(attributes: { [key: string]: any }, range: UIRange): void
+    removeAttribute(attrName: string, range: UIRange): void
+    replaceCharactersWithAttributedString(inRange: UIRange, withAttributedString: UIAttributedString): void
     insertAttributedString(attributedString: UIAttributedString, atIndex: number): void
     appendAttributedString(attributedString: UIAttributedString): void
-    deleteCharacters(inRange: Range): void
+    deleteCharacters(inRange: UIRange): void
     immutable(): UIAttributedString
 }
 
-declare enum UIAttributedStringKey {
-    foregroundColor,      // value: UIColor
-    font,                 // value: UIFont
-    backgroundColor,      // value: UIColor
-    kern,                 // value: number
-    strikethroughStyle,   // value: number
-    underlineStyle,       // value: number
-    strokeColor,          // value: UIColor
-    strokeWidth,          // value: number
-    underlineColor,       // value: UIColor
-    strikethroughColor,   // value: UIColor
-    paragraphStyle,       // value: NSParagraphStyle
+declare class UIAttributedStringKey {
+    static foregroundColor: string      // value: UIColor
+    static font: string                 // value: UIFont
+    static backgroundColor: string      // value: UIColor
+    static kern: string                 // value: number
+    static strikethroughStyle: string   // value: number
+    static underlineStyle: string       // value: number
+    static strokeColor: string          // value: UIColor
+    static strokeWidth: string          // value: number
+    static underlineColor: string       // value: UIColor
+    static strikethroughColor: string   // value: UIColor
+    static paragraphStyle: string       // value: NSParagraphStyle
 }
 
 declare class UIParagraphStyle {
@@ -981,7 +981,7 @@ declare class UIIndexPath {
 
 declare class UIScreen {
     static readonly main: UIScreen
-    readonly bounds: Rect
+    readonly bounds: UIRect
     readonly scale: number
 }
 
@@ -995,11 +995,11 @@ declare class UIDevice {
 }
 
 declare class UIBezierPath {
-    moveTo(toPoint: Point): void
-    addLineTo(toPoint: Point): void
-    addArcTo(toCenter: Point, radius: number, startAngle: number, endAngle: number, closewise: boolean): void
-    addCurveTo(toPoint: Point, controlPoint1: Point, controlPoint2: Point): void
-    addQuadCurveTo(toPoint: Point, controlPoint: Point): void
+    moveTo(toPoint: UIPoint): void
+    addLineTo(toPoint: UIPoint): void
+    addArcTo(toCenter: UIPoint, radius: number, startAngle: number, endAngle: number, closewise: boolean): void
+    addCurveTo(toPoint: UIPoint, controlPoint1: UIPoint, controlPoint2: UIPoint): void
+    addQuadCurveTo(toPoint: UIPoint, controlPoint: UIPoint): void
     closePath(): void
     removeAllPoints(): void
     appendPath(path: UIBezierPath): void
@@ -1011,6 +1011,6 @@ declare class UIPasteboard {
 }
 
 declare class UIMenu {
-    addMenuItem(title: string, actionBlock:() => void): void
+    addMenuItem(title: string, actionBlock: () => void): void
     show(inView: UIView): void
 }

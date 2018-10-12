@@ -1,5 +1,5 @@
 declare class CALayer {
-    frame: Rect
+    frame: UIRect
     readonly superlayer: CALayer | undefined
     removeFromSuperlayer(): void
     readonly sublayers: CALayer[]
@@ -18,15 +18,15 @@ declare class CALayer {
     opacity: number
     shadowColor: UIColor | undefined
     shadowOpacity: number
-    shadowOffset: Size
+    shadowOffset: UISize
     shadowRadius: number
 }
 
 declare class CAGradientLayer extends CALayer {
     colors: UIColor[]
     locations: number[]
-    startPoint: Point
-    endPoint: Point
+    startPoint: UIPoint
+    endPoint: UIPoint
 }
 
 declare class CAShapeLayer extends CALayer {
