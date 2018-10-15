@@ -6,12 +6,12 @@ declare class Bundle {
 }
 
 declare class Data {
-    constructor(value?: ArrayBuffer | {
+    constructor(value?: ArrayBufferLike | {
         utf8String?: string,
         base64EncodedData?: Data,
         base64EncodedString?: string,
     })
-    arrayBuffer(): ArrayBuffer
+    arrayBuffer(): ArrayBufferLike
     utf8String(): string | undefined
     base64EncodedData(): Data
     base64EncodedString(): string
@@ -19,13 +19,13 @@ declare class Data {
 }
 
 declare class MutableData extends Data {
-    constructor(value?: ArrayBuffer | {
+    constructor(value?: ArrayBufferLike | {
         utf8String?: string,
         base64EncodedData?: Data,
         base64EncodedString?: string,
     })
     appendData(data: Data): void
-    appendArrayBuffer(arrayBuffer: ArrayBuffer): void
+    appendArrayBuffer(arrayBuffer: ArrayBufferLike): void
     setData(data: Data): void
     immutable(): Data
 }
