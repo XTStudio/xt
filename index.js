@@ -81,8 +81,9 @@ class ProjectManager {
         pkg.scripts = {
             watch: './node_modules/.bin/xt watch',
             build: './node_modules/.bin/xt build',
+            debug: './node_modules/.bin/xt debug',
         }
-        fs.writeFileSync('package.json', JSON.stringify(pkg))
+        fs.writeFileSync('package.json', JSON.stringify(pkg, undefined, 4))
     }
 
 }
@@ -219,6 +220,9 @@ class SrcBundler {
         } catch (error) { }
         this.watch('node_modules/.tmp/app.js')
         http.createServer((request, response) => {
+            response.setHeader("Access-Control-Allow-Origin", "*")
+            response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+            response.setHeader('Access-Control-Allow-Headers', '*');
             try {
                 if (request.url === "/console") {
                     let body = '';
