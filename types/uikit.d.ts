@@ -924,10 +924,19 @@ declare enum UIImageRenderingMode {
     alwaysTemplate,
 }
 
+interface UIImageEventMap extends BaseEventMap {
+    "load": () => void,
+}
+
 declare class UIImage {
     constructor(options: { name?: string, base64?: string, data?: Data, renderingMode?: UIImageRenderingMode })
     readonly size: UISize
     readonly scale: number
+    // EventEmitter
+    on<K extends keyof UIImageEventMap>(type: K, listener: UIImageEventMap[K]): this
+    once<K extends keyof UIImageEventMap>(type: K, listener: UIImageEventMap[K]): this
+    off<K extends keyof UIImageEventMap>(type: K, listener: UIImageEventMap[K]): this
+    emit<K extends keyof UIImageEventMap>(type: K, ...args: any[]): this
 }
 
 declare class UIAttributedString {
