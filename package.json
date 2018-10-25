@@ -1,6 +1,6 @@
 {
   "name": "xtstudio",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "XTStudio makes it easy and fast to build beautiful mobile apps.",
   "scripts": {
     "test": "node test.js"
