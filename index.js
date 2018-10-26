@@ -21,7 +21,7 @@ var fsDeepCopy = function (srcDir, dstDir) {
             try {
                 fs.mkdirSync(dst);
             } catch (e) { }
-            results = results.concat(copy(src, dst));
+            results = results.concat(fsDeepCopy(src, dst));
         } else {
             try {
                 fs.writeFileSync(dst, fs.readFileSync(src));
@@ -30,50 +30,50 @@ var fsDeepCopy = function (srcDir, dstDir) {
         }
     });
     return results;
-}
+};
 
-    (() => {
-        {
-            var originMethod = console.error
-            console.error = function () {
-                let args = []
-                for (let index = 0; index < arguments.length; index++) {
-                    args.push(colors.red(arguments[index]))
-                }
-                originMethod.apply(undefined, args)
+(() => {
+    {
+        var originMethod = console.error
+        console.error = function () {
+            let args = []
+            for (let index = 0; index < arguments.length; index++) {
+                args.push(colors.red(arguments[index]))
             }
+            originMethod.apply(undefined, args)
         }
-        {
-            var originMethod = console.warn
-            console.warn = function () {
-                let args = []
-                for (let index = 0; index < arguments.length; index++) {
-                    args.push(colors.yellow(arguments[index]))
-                }
-                originMethod.apply(undefined, args)
+    }
+    {
+        var originMethod = console.warn
+        console.warn = function () {
+            let args = []
+            for (let index = 0; index < arguments.length; index++) {
+                args.push(colors.yellow(arguments[index]))
             }
+            originMethod.apply(undefined, args)
         }
-        {
-            var originMethod = console.debug
-            console.debug = function () {
-                let args = []
-                for (let index = 0; index < arguments.length; index++) {
-                    args.push(colors.blue(arguments[index]))
-                }
-                originMethod.apply(undefined, args)
+    }
+    {
+        var originMethod = console.debug
+        console.debug = function () {
+            let args = []
+            for (let index = 0; index < arguments.length; index++) {
+                args.push(colors.blue(arguments[index]))
             }
+            originMethod.apply(undefined, args)
         }
-        {
-            var originMethod = console.info
-            console.info = function () {
-                let args = []
-                for (let index = 0; index < arguments.length; index++) {
-                    args.push(colors.green(arguments[index]))
-                }
-                originMethod.apply(undefined, args)
+    }
+    {
+        var originMethod = console.info
+        console.info = function () {
+            let args = []
+            for (let index = 0; index < arguments.length; index++) {
+                args.push(colors.green(arguments[index]))
             }
+            originMethod.apply(undefined, args)
         }
-    })()
+    }
+})()
 
 class ProjectManager {
 
@@ -134,6 +134,7 @@ global.main = new MainViewController
     }
 
     copy() {
+        fs.mkdirSync('./platform')
         fsDeepCopy('./node_modules/xt-studio/platform', './platform')
     }
 
