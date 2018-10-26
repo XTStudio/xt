@@ -9,48 +9,71 @@ var http = require('http')
 var strip_json_comments = require('strip-json-comments')
 var colors = require('colors/safe');
 
-(() => {
-    {
-        var originMethod = console.error
-        console.error = function () {
-            let args = []
-            for (let index = 0; index < arguments.length; index++) {
-                args.push(colors.red(arguments[index]))
-            }
-            originMethod.apply(undefined, args)
+var fsDeepCopy = function (srcDir, dstDir) {
+    var results = [];
+    var list = fs.readdirSync(srcDir);
+    var src, dst;
+    list.forEach(function (file) {
+        src = srcDir + '/' + file;
+        dst = dstDir + '/' + file;
+        var stat = fs.statSync(src);
+        if (stat && stat.isDirectory()) {
+            try {
+                fs.mkdirSync(dst);
+            } catch (e) { }
+            results = results.concat(copy(src, dst));
+        } else {
+            try {
+                fs.writeFileSync(dst, fs.readFileSync(src));
+            } catch (e) { }
+            results.push(src);
         }
-    }
-    {
-        var originMethod = console.warn
-        console.warn = function () {
-            let args = []
-            for (let index = 0; index < arguments.length; index++) {
-                args.push(colors.yellow(arguments[index]))
+    });
+    return results;
+}
+
+    (() => {
+        {
+            var originMethod = console.error
+            console.error = function () {
+                let args = []
+                for (let index = 0; index < arguments.length; index++) {
+                    args.push(colors.red(arguments[index]))
+                }
+                originMethod.apply(undefined, args)
             }
-            originMethod.apply(undefined, args)
         }
-    }
-    {
-        var originMethod = console.debug
-        console.debug = function () {
-            let args = []
-            for (let index = 0; index < arguments.length; index++) {
-                args.push(colors.blue(arguments[index]))
+        {
+            var originMethod = console.warn
+            console.warn = function () {
+                let args = []
+                for (let index = 0; index < arguments.length; index++) {
+                    args.push(colors.yellow(arguments[index]))
+                }
+                originMethod.apply(undefined, args)
             }
-            originMethod.apply(undefined, args)
         }
-    }
-    {
-        var originMethod = console.info
-        console.info = function () {
-            let args = []
-            for (let index = 0; index < arguments.length; index++) {
-                args.push(colors.green(arguments[index]))
+        {
+            var originMethod = console.debug
+            console.debug = function () {
+                let args = []
+                for (let index = 0; index < arguments.length; index++) {
+                    args.push(colors.blue(arguments[index]))
+                }
+                originMethod.apply(undefined, args)
             }
-            originMethod.apply(undefined, args)
         }
-    }
-})()
+        {
+            var originMethod = console.info
+            console.info = function () {
+                let args = []
+                for (let index = 0; index < arguments.length; index++) {
+                    args.push(colors.green(arguments[index]))
+                }
+                originMethod.apply(undefined, args)
+            }
+        }
+    })()
 
 class ProjectManager {
 
@@ -58,7 +81,27 @@ class ProjectManager {
         fs.mkdirSync('build')
         fs.mkdirSync('res')
         fs.mkdirSync('src')
-        fs.writeFileSync('src/main.ts', `const main = new UIView`)
+        fs.writeFileSync('src/main.ts', `
+class MainViewController extends UIViewController {
+
+    fooLabel = new UILabel
+
+    viewDidLoad() {
+        super.viewDidLoad()
+        this.fooLabel.textAlignment = UITextAlignment.center
+        this.fooLabel.text = "Hello, World!"
+        this.view.addSubview(this.fooLabel)
+    }
+
+    viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        this.fooLabel.frame = this.view.bounds
+    }
+
+}
+
+global.main = new MainViewController
+`)
         fs.writeFileSync('tsconfig.json', `{
     "compilerOptions": {
         "target": "es5",
@@ -73,17 +116,56 @@ class ProjectManager {
         "noImplicitThis": true,
         "alwaysStrict": true,
         "types": [
-            "xtstudio"
+            "xt-studio"
         ]
     }
 }`)
         const pkg = JSON.parse(fs.readFileSync('package.json', { encoding: "utf-8" }))
+        const projectName = pkg.name
         pkg.scripts = {
-            watch: './node_modules/.bin/xt watch',
-            build: './node_modules/.bin/xt build',
+            watch: `./node_modules/.bin/xt watch & ./node_modules/.bin/xt watch --output ./platform/ios/${projectName}/JSBundle/app.js & ./node_modules/.bin/xt watch --output ./platform/web/app.js & ./node_modules/.bin/xt watch --output ./platform/android/app/src/main/assets/app.js`,
+            build: `./node_modules/.bin/xt build & ./node_modules/.bin/xt build --output ./platform/ios/${projectName}/JSBundle/app.js & ./node_modules/.bin/xt build --output ./platform/web/app.js & ./node_modules/.bin/xt build --output ./platform/android/app/src/main/assets/app.js`,
             debug: './node_modules/.bin/xt debug',
+            web: "cd platform/web && http-server -c-1 -s -o",
+            ios: "open platform/ios/*.xcworkspace",
+            android: "",
         }
         fs.writeFileSync('package.json', JSON.stringify(pkg, undefined, 4))
+    }
+
+    copy() {
+        fsDeepCopy('./node_modules/xt-studio/platform', './platform')
+    }
+
+    rename() {
+        const pkg = JSON.parse(fs.readFileSync('package.json', { encoding: "utf-8" }))
+        const projectName = pkg.name
+        this._renameDirs(projectName, "platform")
+    }
+
+    _renameDirs(projectName, path) {
+        fs.readdirSync(path).forEach(it => {
+            if (it.indexOf("SimpleProject") >= 0 || it.indexOf("simpleproject") >= 0) {
+                fs.renameSync(`${path}/${it}`, `${path}/${it.replace(/SimpleProject/ig, projectName)}`)
+            }
+        })
+        fs.readdirSync(path).forEach(it => {
+            if (fs.lstatSync(`${path}/${it}`).isDirectory()) {
+                this._renameDirs(projectName, `${path}/${it}`)
+            }
+            else {
+                this._renameContents(projectName, `${path}/${it}`)
+            }
+        })
+    }
+
+    _renameContents(projectName, path) {
+        const contents = fs.readFileSync(path, { encoding: "utf-8" })
+        if (typeof contents === "string") {
+            try {
+                fs.writeFileSync(path, contents.replace(/SimpleProject/ig, projectName))
+            } catch (error) { }
+        }
     }
 
 }
@@ -290,7 +372,10 @@ else if (process.argv.includes('debug')) {
     srcBundler.debug(port)
 }
 else if (process.argv.includes('init')) {
-    new ProjectManager().init()
+    const manager = new ProjectManager()
+    manager.init()
+    manager.copy()
+    manager.rename()
 }
 else {
     srcBundler.build(outputFile)

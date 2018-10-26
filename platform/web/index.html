@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>SimpleProject</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/kimi-web-sdk@0.2.0/build/dist.min.js"></script>
+    <script src="./app.js"></script>
+    <script>
+        var kimiDebugger = new KIMIDebugger()
+        kimiDebugger.connect(() => {
+            main.attachToElement(document.body)
+        }, () => {
+            main.attachToElement(document.body)
+        })
+    </script>
+</body>
+
+</html>
