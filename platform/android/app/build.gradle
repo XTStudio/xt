@@ -28,9 +28,9 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.github.XTStudio:Kimi-Android-SDK:0.2.0'
-    implementation 'com.github.XTStudio:JSCore-Android:0.1.2'
-    implementation 'com.github.XTStudio:Endo-Android:0.2.0'
+    implementation 'com.github.XTStudio:framework-android:0+'
+    implementation 'com.github.xtstudio:engine-android:0+'
+    implementation 'com.github.xtstudio:jscore-android:0+'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
