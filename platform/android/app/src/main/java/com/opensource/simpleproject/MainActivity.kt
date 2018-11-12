@@ -14,7 +14,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        this.context = EDOFactory.decodeContextFromAssets("test.js", this, null) {
+        this.context = EDOFactory.decodeContextFromAssets("app.js", this, null) {
             this.context = it
             this.attachWindow()
         }
