@@ -7,13 +7,11 @@
 //
 
 #import "AppDelegate.h"
-#import <Endo/Endo.h>
-#import <Kimi-iOS-SDK/KIMIDebugger.h>
+#import <xt-engine/EDOFactory.h>
 
 @interface AppDelegate ()
 
-@property (nonatomic, strong) JSContext *mainContext;
-@property (nonatomic, strong) KIMIDebugger *debugger;
+@property (nonatomic, strong) JSContext *context;
 
 @end
 
@@ -24,34 +22,19 @@
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.window.rootViewController = [UIViewController new];
     [self.window makeKeyAndVisible];
-    [self setupDebugger];
+    [self setupContext];
     return YES;
 }
 
-- (void )setupDebugger {
-    self.debugger = [[KIMIDebugger alloc] initWithRemoteAddress:nil];
-    [self.debugger connect:^(JSContext *mainContext) {
-        self.mainContext = mainContext;
-        UIViewController *mainViewController = [[EDOExporter sharedExporter]
-                                                nsValueWithJSValue:self.mainContext[@"main"]];
-        self.window.rootViewController = mainViewController;
-    } fallback:^{
-        [self setupContext];
-    }];
-}
-
-- (void)setupContext {
-    self.mainContext = [[JSContext alloc] init];
-    [[EDOExporter sharedExporter] exportWithContext:self.mainContext];
-    
-    [self.mainContext evaluateScript:
-     [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"app"
-                                                                        ofType:@"js"]
-                               encoding:NSUTF8StringEncoding
-                                  error:NULL]];
-    UIViewController *mainViewController = [[EDOExporter sharedExporter]
-                                            nsValueWithJSValue:self.mainContext[@"main"]];
-    self.window.rootViewController = mainViewController;
+- (void )setupContext {
+    JSContext *context = [EDOFactory decodeContextFromBundle:@"app.js"
+                                         withDebuggerAddress:@"127.0.0.1:8090"
+                                                onReadyBlock:^(JSContext * _Nonnull context) {
+                                                    self.context = context;
+                                                    self.window.rootViewController = [EDOFactory viewControllerFromContext:self.context withName:nil];
+                                                }];
+    self.context = context;
+    self.window.rootViewController = [EDOFactory viewControllerFromContext:self.context withName:nil];
 }
 
 @end
