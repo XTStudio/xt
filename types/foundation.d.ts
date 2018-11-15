@@ -12,6 +12,7 @@ declare class Data {
         base64EncodedString?: string,
     })
     arrayBuffer(): ArrayBufferLike
+    json(): any | undefined
     utf8String(): string | undefined
     base64EncodedData(): Data
     base64EncodedString(): string
