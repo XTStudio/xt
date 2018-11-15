@@ -132,11 +132,42 @@ declare enum UIStatusBarStyle {
 // Interfaces
 
 declare interface UIRect { x: number, y: number, width: number, height: number }
+declare const UIRectZero: UIRect
+declare function UIRectMake(x: number, y: number, width: number, height: number): UIRect
+declare function UIRectEqualToRect(rect1: UIRect, rect2: UIRect): boolean
+declare function UIRectInset(rect: UIRect, dx: number, dy: number): UIRect
+declare function UIRectOffset(rect: UIRect, dx: number, dy: number): UIRect
+declare function UIRectContainsPoint(rect: UIRect, point: UIPoint): boolean
+declare function UIRectContainsRect(rect1: UIRect, rect2: UIRect): boolean
+declare function UIRectIntersectsRect(rect1: UIRect, rect2: UIRect): boolean
 declare interface UIPoint { x: number, y: number }
+declare const UIPointZero: UIPoint
+declare function UIPointMake(x: number, y: number): UIPoint
+declare function UIPointEqualToPoint(point1: UIPoint, point2: UIPoint): boolean
 declare interface UISize { width: number, height: number }
+declare const UISizeZero: UISize
+declare function UISizeMake(width: number, height: number): UISize
+declare function UISizeEqualToSize(size1: UISize, size2: UISize): boolean
 declare interface UIAffineTransform { a: number, b: number, c: number, d: number, tx: number, ty: number }
+declare const UIAffineTransformIdentity: UIAffineTransform
+declare function UIAffineTransformMake(a: number, b: number, c: number, d: number, tx: number, ty: number): UIAffineTransform
+declare function UIAffineTransformMakeTranslation(tx: number, ty: number): UIAffineTransform
+declare function UIAffineTransformMakeScale(sx: number, sy: number): UIAffineTransform
+declare function UIAffineTransformMakeRotation(angle: number): UIAffineTransform
+declare function UIAffineTransformIsIdentity(t: UIAffineTransform): boolean
+declare function UIAffineTransformTranslate(t: UIAffineTransform, tx: number, ty: number): UIAffineTransform
+declare function UIAffineTransformScale(t: UIAffineTransform, sx: number, sy: number): UIAffineTransform
+declare function UIAffineTransformRotate(t: UIAffineTransform, angle: number): UIAffineTransform
+declare function UIAffineTransformInvert(t: UIAffineTransform): UIAffineTransform
+declare function UIAffineTransformConcat(t1: UIAffineTransform, t2: UIAffineTransform): UIAffineTransform
+declare function UIAffineTransformEqualToTransform(t1: UIAffineTransform, t2: UIAffineTransform): UIAffineTransform
 declare interface UIEdgeInsets { top: number, left: number, bottom: number, right: number }
+declare const UIEdgeInsetsZero: UIEdgeInsets
+declare function UIEdgeInsetsMake(top: number, left: number, bottom: number, right: number): UIEdgeInsets
+declare function UIEdgeInsetsInsetRect(rect: UIRect, insets: UIEdgeInsets): UIRect
+declare function UIEdgeInsetsEqualToEdgeInsets(rect1: UIEdgeInsets, rect2: UIEdgeInsets): boolean
 declare interface UIRange { location: number, length: number }
+declare function UIRangeMake(location: number, length: number): UIRange
 
 // Views
 
@@ -152,6 +183,7 @@ declare class UIView {
     readonly superview: UIView | undefined
     readonly subviews: UIView[]
     readonly window: UIWindow | undefined
+    readonly viewController: UIViewController | undefined
     removeFromSuperview(): void
     insertSubviewAtIndex(view: UIView, index: number): void
     exchangeSubview(index1: number, index2: number): void
@@ -907,6 +939,7 @@ declare class UIColor {
     static readonly green: UIColor
     static readonly blue: UIColor
     static readonly white: UIColor
+    static hexColor(hexValue: string): UIColor
     constructor(r: number, g: number, b: number, a: number)
 }
 

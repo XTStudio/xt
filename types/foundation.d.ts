@@ -58,6 +58,7 @@ declare class FileManager {
 }
 
 declare class Timer {
+    static sleep(timeInterval: number): Promise<any>
     constructor(timeInterval: number, block: () => void, repeats: boolean)
     readonly valid: boolean
     fire(): void
@@ -107,7 +108,8 @@ declare class URLResponse {
 
 declare class URLSession {
     static readonly shared: URLSession
-    dataTask(req: string | URL | URLRequest, complete: (data?: Data, response?: URLResponse, error?: Error) => void): URLSessionTask
+    fetch(request: string | URL | URLRequest): Promise<Data>
+    dataTask(request: string | URL | URLRequest, complete: (data?: Data, response?: URLResponse, error?: Error) => void): URLSessionTask
 }
 
 declare class URLSessionTask {
