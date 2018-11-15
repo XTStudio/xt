@@ -160,7 +160,7 @@ declare function UIAffineTransformScale(t: UIAffineTransform, sx: number, sy: nu
 declare function UIAffineTransformRotate(t: UIAffineTransform, angle: number): UIAffineTransform
 declare function UIAffineTransformInvert(t: UIAffineTransform): UIAffineTransform
 declare function UIAffineTransformConcat(t1: UIAffineTransform, t2: UIAffineTransform): UIAffineTransform
-declare function UIAffineTransformEqualToTransform(t1: UIAffineTransform, t2: UIAffineTransform): UIAffineTransform
+declare function UIAffineTransformEqualToTransform(t1: UIAffineTransform, t2: UIAffineTransform): boolean
 declare interface UIEdgeInsets { top: number, left: number, bottom: number, right: number }
 declare const UIEdgeInsetsZero: UIEdgeInsets
 declare function UIEdgeInsetsMake(top: number, left: number, bottom: number, right: number): UIEdgeInsets
