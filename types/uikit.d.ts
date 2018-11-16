@@ -178,6 +178,10 @@ declare class UIView {
     center: UIPoint
     transform: UIAffineTransform
     touchAreaInsets: UIEdgeInsets
+    convertPointToView(point: UIPoint, toView: UIView): UIPoint
+    convertPointFromView(point: UIPoint, toView: UIView): UIPoint
+    convertRectToView(point: UIRect, toView: UIView): UIRect
+    convertRectFromView(point: UIRect, toView: UIView): UIRect
     // Hierarchy
     tag: number
     readonly superview: UIView | undefined
