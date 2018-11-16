@@ -78,6 +78,9 @@ var fsDeepCopy = function (srcDir, dstDir) {
 class ProjectManager {
 
     init() {
+        if (!fs.existsSync("package.json")) { 
+            throw Error("You should run [npm init] first.")
+        }
         fs.mkdirSync('build')
         fs.mkdirSync('res')
         fs.mkdirSync('src')
@@ -126,7 +129,7 @@ global.main = new MainViewController
             watch: `./node_modules/.bin/xt watch & ./node_modules/.bin/xt watch --output ./platform/ios/${projectName}/JSBundle/app.js & ./node_modules/.bin/xt watch --output ./platform/web/app.js & ./node_modules/.bin/xt watch --output ./platform/android/app/src/main/assets/app.js`,
             build: `./node_modules/.bin/xt build & ./node_modules/.bin/xt build --output ./platform/ios/${projectName}/JSBundle/app.js & ./node_modules/.bin/xt build --output ./platform/web/app.js & ./node_modules/.bin/xt build --output ./platform/android/app/src/main/assets/app.js`,
             debug: './node_modules/.bin/xt debug',
-            web: "cd platform/web && http-server -c-1 -s -o",
+            web: "cd platform/web && http-server -c-1",
             ios: "open platform/ios/*.xcworkspace",
             android: "",
         }
