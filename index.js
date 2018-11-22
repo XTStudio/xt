@@ -81,6 +81,11 @@ class ProjectManager {
         if (!fs.existsSync("package.json")) { 
             throw Error("You should run [npm init] first.")
         }
+        fs.writeFileSync(".gitignore", `
+node_modules/
+.npm
+npm-debug.log*
+`)
         fs.mkdirSync('build')
         fs.mkdirSync('res')
         fs.mkdirSync('src')
