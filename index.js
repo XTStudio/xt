@@ -78,7 +78,7 @@ var fsDeepCopy = function (srcDir, dstDir) {
 class ProjectManager {
 
     init() {
-        if (!fs.existsSync("package.json")) { 
+        if (!fs.existsSync("package.json")) {
             throw Error("You should run [npm init] first.")
         }
         fs.writeFileSync(".gitignore", `
@@ -229,10 +229,11 @@ class SrcBundler {
         }
     }
 
-    createBrowserify() {
-        return browserify({
+    createBrowserify(debug) {
+        var instance = browserify({
             cache: {},
             packageCache: {},
+            debug: debug,
         })
             .add('src/main.ts')
             .plugin(tsify, this.compilerOptions())
@@ -248,11 +249,14 @@ class SrcBundler {
                     this.queue(null);
                 }
             })
-            .transform('uglifyify', { sourceMap: false })
+        if (debug !== true) {
+            instance = instance.transform('uglifyify', { sourceMap: false })
+        }
+        return instance
     }
 
-    watch(dest) {
-        const b = this.createBrowserify()
+    watch(dest, debug) {
+        const b = this.createBrowserify(debug)
         b.plugin(watchify)
             .on('update', () => {
                 b.bundle(function (err) {
@@ -309,7 +313,7 @@ class SrcBundler {
         try {
             fs.mkdirSync('node_modules/.tmp')
         } catch (error) { }
-        this.watch('node_modules/.tmp/app.js')
+        this.watch('node_modules/.tmp/app.js', true)
         http.createServer((request, response) => {
             response.setHeader("Access-Control-Allow-Origin", "*")
             response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
