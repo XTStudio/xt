@@ -220,6 +220,11 @@ class ResBundler {
 
 class SrcBundler {
 
+    constructor(dest, debugging) {
+        this.dest = dest
+        this.debugging = debugging
+    }
+
     compilerOptions() {
         try {
             const tsconfig = fs.readFileSync('tsconfig.json', { encoding: "utf-8" })
@@ -229,11 +234,13 @@ class SrcBundler {
         }
     }
 
-    createBrowserify(debug) {
+    createBrowserify() {
+        var self = this
         var instance = browserify({
             cache: {},
             packageCache: {},
-            debug: debug,
+            debug: this.debugging,
+            ignoreMissing: true,
         })
             .add('src/main.ts')
             .plugin(tsify, this.compilerOptions())
@@ -249,87 +256,67 @@ class SrcBundler {
                     this.queue(null);
                 }
             })
-        if (debug !== true) {
+        if (this.debugging !== true) {
             instance = instance.transform('uglifyify', { sourceMap: false })
         }
         return instance
     }
 
-    watch(dest, debug) {
-        const b = this.createBrowserify(debug)
-        b.plugin(watchify)
-            .on('update', () => {
-                b.bundle(function (err) {
-                    if (!err) {
-                        if (dest === "node_modules/.tmp/app.js") {
-                            fs.writeFileSync("node_modules/.tmp/app.js.version", new Date().getTime())
-                        }
-                        console.log("✅ Built at: " + new Date())
-                    }
+    build(watching) {
+        if (this.locked === true) { this.waited = true; return }
+        this.locked = true
+        this.waited = false
+        const b = this.createBrowserify()
+        if (watching === true) {
+            b.plugin(watchify)
+                .on('update', () => {
+                    this.build(true)
                 })
-                    .on('error', (error) => {
-                        this.watchDelay(error, dest)
-                    })
-                    .pipe(fs.createWriteStream(dest));
-                console.log("📌 Started at: " + new Date())
-            })
-        b.bundle(function (err) {
-            if (!err) {
-                if (dest === "node_modules/.tmp/app.js") {
+        }
+        b.bundle((error) => {
+            if (error) {
+                console.error(error)
+            }
+            else {
+                if (this.dest === "node_modules/.tmp/app.js") {
                     fs.writeFileSync("node_modules/.tmp/app.js.version", new Date().getTime())
                 }
                 console.log("✅ Built at: " + new Date())
+                return new ArrayBuffer(0)
             }
         })
             .on('error', (error) => {
-                this.watchDelay(error, dest)
+                console.error(error);
             })
-            .pipe(() => {
-                const stream = fs.createWriteStream(dest, {
-                    encoding: 'utf8'
+            .pipe((() => {
+                let stream = fs.createWriteStream(this.dest)
+                stream.on("close", () => {
+                    this.wxPatch()
+                    this.locked = false
+                    if (this.waited) {
+                        this.build(watching)
+                    }
                 })
-                if (this.wx === true) {
-                    stream.write(`const { Bundle, Data, MutableData, DispatchQueue, FileManager, Timer, URL, URLRequestCachePolicy, URLRequest, MutableURLRequest, URLResponse, URLSession, URLSessionTaskState, URLSessionTask, UserDefaults, UUID, CADisplayLink, CAGradientLayer, CALayer, CAShapeFillRule, CAShapeLineCap, CAShapeLineJoin, CAShapeLayer, KMCore, UIActionSheet, UIActivityIndicatorView, UIAlert, UIAffineTransformIdentity, UIAffineTransformMake, UIAffineTransformMakeTranslation, UIAffineTransformMakeScale, UIAffineTransformMakeRotation, UIAffineTransformTranslate, UIAffineTransformScale, UIAffineTransformRotate, UIAffineTransformInvert, UIAffineTransformConcat, UIAffineTransformEqualToTransform, UIAffineTransformIsIdentity, UIAnimator, UIAttributedStringKey, UIParagraphStyle, UIAttributedString, UIMutableAttributedString, UIBezierPath, UIButton, UICollectionElementKindCell, UICollectionViewItemKey, UICollectionViewLayoutAttributes, UICollectionViewLayout, UICollectionView, UICollectionReusableView, UICollectionViewCell, UICollectionViewData, UICollectionViewScrollDirection, UIFlowLayoutHorizontalAlignment, UICollectionViewFlowLayout, UIColor, UIConfirm, UIDevice, UIEdgeInsetsZero, UIEdgeInsetsMake, UIEdgeInsetsInsetRect, UIEdgeInsetsEqualToEdgeInsets, UIViewContentMode, UIControlState, UIControlContentVerticalAlignment, UIControlContentHorizontalAlignment, UITextAlignment, UILineBreakMode, UITextFieldViewMode, UITextAutocapitalizationType, UITextAutocorrectionType, UITextSpellCheckingType, UIKeyboardType, UIReturnKeyType, UILayoutConstraintAxis, UIStackViewDistribution, UIStackViewAlignment, UIStatusBarStyle, UIFetchMoreControl, UIFont, UIGestureRecognizerState, UIGestureRecognizer, UIImageRenderingMode, UIImage, UIImageView, UILabel, UILongPressGestureRecognizer, UINavigationItem, UIBarButtonItem, UINavigationBar, UINavigationBarViewController, UINavigationController, UIPageViewController, UIPanGestureRecognizer, UIPinchGestureRecognizer, UIPointZero, UIPointMake, UIPointEqualToPoint, UIProgressView, UIRectZero, UIRectMake, UIRectEqualToRect, UIRectInset, UIRectOffset, UIRectContainsPoint, UIRectContainsRect, UIRectIntersectsRect, UIRectUnion, UIRectIsEmpty, UIRefreshControl, UIRotationGestureRecognizer, UIScreen, UIScrollView, UISizeZero, UISizeMake, UISizeEqualToSize, UISlider, UIStackView, UISwitch, UITabBarController, UITapGestureRecognizer, UITableView, UITableViewCell, UITextField, UITextView, UITouchPhase, UITouch, UIView, UIWindow, UIViewController, UIWebView } = require("xt-framework-wx")\n\n`)
-                }
                 return stream
-            })
+            })())
         console.log("📌 Started at: " + new Date())
     }
 
-    watchDelay(error, dest) {
-        if (this.lastError === undefined || error.message !== this.lastError.message) {
-            this.lastError = error
-            console.error(error)
-            console.error("💔 Built failed: " + new Date())
-            console.log("🚥 Compiler will try after 5 second.")
+    wxPatch() {
+        if (process.argv.indexOf("--wx") > 0) {
+            let data = fs.readFileSync(this.dest, { encoding: "utf-8" })
+            data = `;var Bundle, Data, MutableData, DispatchQueue, FileManager, Timer, URL, URLRequestCachePolicy, URLRequest, MutableURLRequest, URLResponse, URLSession, URLSessionTaskState, URLSessionTask, UserDefaults, UUID, CADisplayLink, CAGradientLayer, CALayer, CAShapeFillRule, CAShapeLineCap, CAShapeLineJoin, CAShapeLayer, KMCore, UIActionSheet, UIActivityIndicatorView, UIAlert, UIAffineTransformIdentity, UIAffineTransformMake, UIAffineTransformMakeTranslation, UIAffineTransformMakeScale, UIAffineTransformMakeRotation, UIAffineTransformTranslate, UIAffineTransformScale, UIAffineTransformRotate, UIAffineTransformInvert, UIAffineTransformConcat, UIAffineTransformEqualToTransform, UIAffineTransformIsIdentity, UIAnimator, UIAttributedStringKey, UIParagraphStyle, UIAttributedString, UIMutableAttributedString, UIBezierPath, UIButton, UICollectionElementKindCell, UICollectionViewItemKey, UICollectionViewLayoutAttributes, UICollectionViewLayout, UICollectionView, UICollectionReusableView, UICollectionViewCell, UICollectionViewData, UICollectionViewScrollDirection, UIFlowLayoutHorizontalAlignment, UICollectionViewFlowLayout, UIColor, UIConfirm, UIDevice, UIEdgeInsetsZero, UIEdgeInsetsMake, UIEdgeInsetsInsetRect, UIEdgeInsetsEqualToEdgeInsets, UIViewContentMode, UIControlState, UIControlContentVerticalAlignment, UIControlContentHorizontalAlignment, UITextAlignment, UILineBreakMode, UITextFieldViewMode, UITextAutocapitalizationType, UITextAutocorrectionType, UITextSpellCheckingType, UIKeyboardType, UIReturnKeyType, UILayoutConstraintAxis, UIStackViewDistribution, UIStackViewAlignment, UIStatusBarStyle, UIFetchMoreControl, UIFont, UIGestureRecognizerState, UIGestureRecognizer, UIImageRenderingMode, UIImage, UIImageView, UILabel, UILongPressGestureRecognizer, UINavigationItem, UIBarButtonItem, UINavigationBar, UINavigationBarViewController, UINavigationController, UIPageViewController, UIPanGestureRecognizer, UIPinchGestureRecognizer, UIPointZero, UIPointMake, UIPointEqualToPoint, UIProgressView, UIRectZero, UIRectMake, UIRectEqualToRect, UIRectInset, UIRectOffset, UIRectContainsPoint, UIRectContainsRect, UIRectIntersectsRect, UIRectUnion, UIRectIsEmpty, UIRefreshControl, UIRotationGestureRecognizer, UIScreen, UIScrollView, UISizeZero, UISizeMake, UISizeEqualToSize, UISlider, UIStackView, UISwitch, UITabBarController, UITapGestureRecognizer, UITableView, UITableViewCell, UITextField, UITextView, UITouchPhase, UITouch, UIView, UIWindow, UIViewController, UIWebView;(function(){ const _ = require("xt-framework-wx"); Bundle = _.Bundle;Data = _.Data;MutableData = _.MutableData;DispatchQueue = _.DispatchQueue;FileManager = _.FileManager;Timer = _.Timer;URL = _.URL;URLRequestCachePolicy = _.URLRequestCachePolicy;URLRequest = _.URLRequest;MutableURLRequest = _.MutableURLRequest;URLResponse = _.URLResponse;URLSession = _.URLSession;URLSessionTaskState = _.URLSessionTaskState;URLSessionTask = _.URLSessionTask;UserDefaults = _.UserDefaults;UUID = _.UUID;CADisplayLink = _.CADisplayLink;CAGradientLayer = _.CAGradientLayer;CALayer = _.CALayer;CAShapeFillRule = _.CAShapeFillRule;CAShapeLineCap = _.CAShapeLineCap;CAShapeLineJoin = _.CAShapeLineJoin;CAShapeLayer = _.CAShapeLayer;KMCore = _.KMCore;UIActionSheet = _.UIActionSheet;UIActivityIndicatorView = _.UIActivityIndicatorView;UIAlert = _.UIAlert;UIAffineTransformIdentity = _.UIAffineTransformIdentity;UIAffineTransformMake = _.UIAffineTransformMake;UIAffineTransformMakeTranslation = _.UIAffineTransformMakeTranslation;UIAffineTransformMakeScale = _.UIAffineTransformMakeScale;UIAffineTransformMakeRotation = _.UIAffineTransformMakeRotation;UIAffineTransformTranslate = _.UIAffineTransformTranslate;UIAffineTransformScale = _.UIAffineTransformScale;UIAffineTransformRotate = _.UIAffineTransformRotate;UIAffineTransformInvert = _.UIAffineTransformInvert;UIAffineTransformConcat = _.UIAffineTransformConcat;UIAffineTransformEqualToTransform = _.UIAffineTransformEqualToTransform;UIAffineTransformIsIdentity = _.UIAffineTransformIsIdentity;UIAnimator = _.UIAnimator;UIAttributedStringKey = _.UIAttributedStringKey;UIParagraphStyle = _.UIParagraphStyle;UIAttributedString = _.UIAttributedString;UIMutableAttributedString = _.UIMutableAttributedString;UIBezierPath = _.UIBezierPath;UIButton = _.UIButton;UICollectionElementKindCell = _.UICollectionElementKindCell;UICollectionViewItemKey = _.UICollectionViewItemKey;UICollectionViewLayoutAttributes = _.UICollectionViewLayoutAttributes;UICollectionViewLayout = _.UICollectionViewLayout;UICollectionView = _.UICollectionView;UICollectionReusableView = _.UICollectionReusableView;UICollectionViewCell = _.UICollectionViewCell;UICollectionViewData = _.UICollectionViewData;UICollectionViewScrollDirection = _.UICollectionViewScrollDirection;UIFlowLayoutHorizontalAlignment = _.UIFlowLayoutHorizontalAlignment;UICollectionViewFlowLayout = _.UICollectionViewFlowLayout;UIColor = _.UIColor;UIConfirm = _.UIConfirm;UIDevice = _.UIDevice;UIEdgeInsetsZero = _.UIEdgeInsetsZero;UIEdgeInsetsMake = _.UIEdgeInsetsMake;UIEdgeInsetsInsetRect = _.UIEdgeInsetsInsetRect;UIEdgeInsetsEqualToEdgeInsets = _.UIEdgeInsetsEqualToEdgeInsets;UIViewContentMode = _.UIViewContentMode;UIControlState = _.UIControlState;UIControlContentVerticalAlignment = _.UIControlContentVerticalAlignment;UIControlContentHorizontalAlignment = _.UIControlContentHorizontalAlignment;UITextAlignment = _.UITextAlignment;UILineBreakMode = _.UILineBreakMode;UITextFieldViewMode = _.UITextFieldViewMode;UITextAutocapitalizationType = _.UITextAutocapitalizationType;UITextAutocorrectionType = _.UITextAutocorrectionType;UITextSpellCheckingType = _.UITextSpellCheckingType;UIKeyboardType = _.UIKeyboardType;UIReturnKeyType = _.UIReturnKeyType;UILayoutConstraintAxis = _.UILayoutConstraintAxis;UIStackViewDistribution = _.UIStackViewDistribution;UIStackViewAlignment = _.UIStackViewAlignment;UIStatusBarStyle = _.UIStatusBarStyle;UIFetchMoreControl = _.UIFetchMoreControl;UIFont = _.UIFont;UIGestureRecognizerState = _.UIGestureRecognizerState;UIGestureRecognizer = _.UIGestureRecognizer;UIImageRenderingMode = _.UIImageRenderingMode;UIImage = _.UIImage;UIImageView = _.UIImageView;UILabel = _.UILabel;UILongPressGestureRecognizer = _.UILongPressGestureRecognizer;UINavigationItem = _.UINavigationItem;UIBarButtonItem = _.UIBarButtonItem;UINavigationBar = _.UINavigationBar;UINavigationBarViewController = _.UINavigationBarViewController;UINavigationController = _.UINavigationController;UIPageViewController = _.UIPageViewController;UIPanGestureRecognizer = _.UIPanGestureRecognizer;UIPinchGestureRecognizer = _.UIPinchGestureRecognizer;UIPointZero = _.UIPointZero;UIPointMake = _.UIPointMake;UIPointEqualToPoint = _.UIPointEqualToPoint;UIProgressView = _.UIProgressView;UIRectZero = _.UIRectZero;UIRectMake = _.UIRectMake;UIRectEqualToRect = _.UIRectEqualToRect;UIRectInset = _.UIRectInset;UIRectOffset = _.UIRectOffset;UIRectContainsPoint = _.UIRectContainsPoint;UIRectContainsRect = _.UIRectContainsRect;UIRectIntersectsRect = _.UIRectIntersectsRect;UIRectUnion = _.UIRectUnion;UIRectIsEmpty = _.UIRectIsEmpty;UIRefreshControl = _.UIRefreshControl;UIRotationGestureRecognizer = _.UIRotationGestureRecognizer;UIScreen = _.UIScreen;UIScrollView = _.UIScrollView;UISizeZero = _.UISizeZero;UISizeMake = _.UISizeMake;UISizeEqualToSize = _.UISizeEqualToSize;UISlider = _.UISlider;UIStackView = _.UIStackView;UISwitch = _.UISwitch;UITabBarController = _.UITabBarController;UITapGestureRecognizer = _.UITapGestureRecognizer;UITableView = _.UITableView;UITableViewCell = _.UITableViewCell;UITextField = _.UITextField;UITextView = _.UITextView;UITouchPhase = _.UITouchPhase;UITouch = _.UITouch;UIView = _.UIView;UIWindow = _.UIWindow;UIViewController = _.UIViewController;UIWebView = _.UIWebView })();\n${data}`
+            fs.writeFileSync(this.dest, data)
         }
-        else {
-            console.log("🚥 Still failed. Compiler will try after file changed.")
-        }
-    }
-
-    build(dest) {
-        const b = this.createBrowserify()
-        b.bundle(function () {
-            console.log("✅ Built at: " + new Date())
-        })
-            .pipe(() => {
-                const stream = fs.createWriteStream(dest, {
-                    encoding: 'utf8'
-                })
-                if (this.wx === true) {
-                    stream.write(`const { Bundle, Data, MutableData, DispatchQueue, FileManager, Timer, URL, URLRequestCachePolicy, URLRequest, MutableURLRequest, URLResponse, URLSession, URLSessionTaskState, URLSessionTask, UserDefaults, UUID, CADisplayLink, CAGradientLayer, CALayer, CAShapeFillRule, CAShapeLineCap, CAShapeLineJoin, CAShapeLayer, KMCore, UIActionSheet, UIActivityIndicatorView, UIAlert, UIAffineTransformIdentity, UIAffineTransformMake, UIAffineTransformMakeTranslation, UIAffineTransformMakeScale, UIAffineTransformMakeRotation, UIAffineTransformTranslate, UIAffineTransformScale, UIAffineTransformRotate, UIAffineTransformInvert, UIAffineTransformConcat, UIAffineTransformEqualToTransform, UIAffineTransformIsIdentity, UIAnimator, UIAttributedStringKey, UIParagraphStyle, UIAttributedString, UIMutableAttributedString, UIBezierPath, UIButton, UICollectionElementKindCell, UICollectionViewItemKey, UICollectionViewLayoutAttributes, UICollectionViewLayout, UICollectionView, UICollectionReusableView, UICollectionViewCell, UICollectionViewData, UICollectionViewScrollDirection, UIFlowLayoutHorizontalAlignment, UICollectionViewFlowLayout, UIColor, UIConfirm, UIDevice, UIEdgeInsetsZero, UIEdgeInsetsMake, UIEdgeInsetsInsetRect, UIEdgeInsetsEqualToEdgeInsets, UIViewContentMode, UIControlState, UIControlContentVerticalAlignment, UIControlContentHorizontalAlignment, UITextAlignment, UILineBreakMode, UITextFieldViewMode, UITextAutocapitalizationType, UITextAutocorrectionType, UITextSpellCheckingType, UIKeyboardType, UIReturnKeyType, UILayoutConstraintAxis, UIStackViewDistribution, UIStackViewAlignment, UIStatusBarStyle, UIFetchMoreControl, UIFont, UIGestureRecognizerState, UIGestureRecognizer, UIImageRenderingMode, UIImage, UIImageView, UILabel, UILongPressGestureRecognizer, UINavigationItem, UIBarButtonItem, UINavigationBar, UINavigationBarViewController, UINavigationController, UIPageViewController, UIPanGestureRecognizer, UIPinchGestureRecognizer, UIPointZero, UIPointMake, UIPointEqualToPoint, UIProgressView, UIRectZero, UIRectMake, UIRectEqualToRect, UIRectInset, UIRectOffset, UIRectContainsPoint, UIRectContainsRect, UIRectIntersectsRect, UIRectUnion, UIRectIsEmpty, UIRefreshControl, UIRotationGestureRecognizer, UIScreen, UIScrollView, UISizeZero, UISizeMake, UISizeEqualToSize, UISlider, UIStackView, UISwitch, UITabBarController, UITapGestureRecognizer, UITableView, UITableViewCell, UITextField, UITextView, UITouchPhase, UITouch, UIView, UIWindow, UIViewController, UIWebView } = require("xt-framework-wx")\n\n`)
-                }
-                return stream
-            });
-        console.log("📌 Started at: " + new Date())
     }
 
     debug(port) {
         try {
             fs.mkdirSync('node_modules/.tmp')
         } catch (error) { }
-        this.watch('node_modules/.tmp/app.js', true)
+        this.dest = 'node_modules/.tmp/app.js'
+        this.debugging = true
+        this.build(true)
         http.createServer((request, response) => {
             response.setHeader("Access-Control-Allow-Origin", "*")
             response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -387,15 +374,14 @@ class SrcBundler {
 }
 
 const resBundler = new ResBundler()
-const srcBundler = new SrcBundler()
-srcBundler.wx = process.argv.indexOf("--wx") >= 0
 const outputFile = process.argv.indexOf("--output") >= 0 ? process.argv[process.argv.indexOf("--output") + 1] : './build/app.js'
+const srcBundler = new SrcBundler(outputFile)
 
 if (process.argv.includes('build')) {
-    srcBundler.build(outputFile)
+    srcBundler.build()
 }
 else if (process.argv.includes('watch')) {
-    srcBundler.watch(outputFile)
+    srcBundler.build(true)
 }
 else if (process.argv.includes('debug')) {
     const port = process.argv.indexOf("--port") >= 0 ? process.argv[process.argv.indexOf("--port") + 1] : 8090
