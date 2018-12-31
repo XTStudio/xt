@@ -28,6 +28,5 @@
     "watchify": "^3.11.0"
   },
   "typings": "./types/index.d.ts",
-  "types": "./types/index.d.ts",
-  "files": ["**/.gitignore"]
+  "types": "./types/index.d.ts"
 }
