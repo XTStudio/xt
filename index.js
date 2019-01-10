@@ -2,6 +2,7 @@
 var browserify = require('browserify')
 var watchify = require('watchify')
 var tsify = require('tsify')
+var ts = require('typescript')
 var through = require('through')
 var fs = require('fs')
 var path = require('path')
@@ -223,6 +224,7 @@ class SrcBundler {
     constructor(dest, debugging) {
         this.dest = dest
         this.debugging = debugging
+        this.reloadingCodes = {}
     }
 
     compilerOptions() {
@@ -249,6 +251,9 @@ class SrcBundler {
                 return through(write, end);
                 function write(buf) { data += buf }
                 function end() {
+                    if (file.endsWith(".ts") && data.indexOf(`UIReload("`) >= 0) {
+                        self.fetchReloadingNode(file)
+                    }
                     if (file == path.resolve('src/main.ts')) {
                         data = resBundler.bundle() + "\n" + data
                     }
@@ -262,15 +267,88 @@ class SrcBundler {
         return instance
     }
 
-    build(watching) {
+    fetchReloadingNode(file) {
+        const program = ts.createProgram([file], { noResolve: true })
+        const sourceFile = program.getSourceFile(file)
+        const fetchNode = (node) => {
+            if (ts.isClassDeclaration(node) && node.decorators.length > 0 && node.decorators.filter(it => it.getText(sourceFile).indexOf("@UIReload") >= 0)) {
+                const reloadIdentifier = (() => {
+                    const decorator = node.decorators.filter(it => it.getText(sourceFile).indexOf("@UIReload") >= 0)[0]
+                    return decorator.expression.arguments[0].text
+                })()
+                this.reloadingCodes[reloadIdentifier] = node.getText(sourceFile)
+            }
+            node.forEachChild(it => fetchNode(it))
+        }
+        fetchNode(sourceFile)
+    }
+
+    diffReloadingNode(file) {
+        let nodeChanges = []
+        const program = ts.createProgram([file], { noResolve: true })
+        const sourceFile = program.getSourceFile(file)
+        const fetchNode = (node) => {
+            if (ts.isClassDeclaration(node) && node.decorators.length > 0 && node.decorators.filter(it => it.getText(sourceFile).indexOf("@UIReload") >= 0)) {
+                const reloadIdentifier = (() => {
+                    const decorator = node.decorators.filter(it => it.getText(sourceFile).indexOf("@UIReload") >= 0)[0]
+                    return decorator.expression.arguments[0].text
+                })()
+                if (this.reloadingCodes[reloadIdentifier] !== node.getText(sourceFile)) {
+                    node.sourceFile = sourceFile
+                    nodeChanges.push(node)
+                }
+            }
+            node.forEachChild(it => fetchNode(it))
+        }
+        fetchNode(sourceFile)
+        return nodeChanges
+    }
+
+    buildReloading(nodes) {
+        if (nodes.length == 0) { return }
+        if (this.dest !== "node_modules/.tmp/app.js") { return }
+        let dist = ''
+        nodes.forEach(node => {
+            if (ts.isClassDeclaration(node)) {
+                const reloadIdentifier = (() => {
+                    const decorator = node.decorators.filter(it => it.getText(node.sourceFile).indexOf("@UIReload") >= 0)[0]
+                    return decorator.expression.arguments[0].text
+                })()
+                let extendsName = undefined
+                if (node.heritageClauses) {
+                    node.heritageClauses.forEach(it => {
+                        if (it.token === ts.SyntaxKind.ExtendsKeyword) {
+                            extendsName = it.getText(node.sourceFile).replace('extends ', '')
+                        }
+                    })
+                }
+                dist += `
+                (function(){
+                    ${extendsName ? `let ${extendsName} = UIReloader.shared.items["${reloadIdentifier}"].superItem.clazz.constructor;` : ''}
+                    ${node.getText(node.sourceFile)}
+                })()
+                `
+            }
+        })
+        fs.writeFileSync("node_modules/.tmp/reload.js", ts.transpile(dist, { target: ts.ScriptTarget.ES5 }))
+    }
+
+    build(watching, reloading) {
         if (this.locked === true) { this.waited = true; return }
         this.locked = true
         this.waited = false
         const b = this.createBrowserify()
         if (watching === true) {
             b.plugin(watchify)
-                .on('update', () => {
-                    this.build(true)
+                .on('update', (files) => {
+                    let reloadingNodes = []
+                    files.forEach(file => {
+                        this.diffReloadingNode(file).forEach(it => reloadingNodes.push(it))
+                    })
+                    if (reloadingNodes.length > 0) {
+                        this.buildReloading(reloadingNodes)
+                    }
+                    this.build(true, reloadingNodes.length > 0)
                 })
         }
         b.bundle((error) => {
@@ -279,7 +357,7 @@ class SrcBundler {
             }
             else {
                 if (this.dest === "node_modules/.tmp/app.js") {
-                    fs.writeFileSync("node_modules/.tmp/app.js.version", new Date().getTime())
+                    fs.writeFileSync("node_modules/.tmp/app.js.version", new Date().getTime() + (reloading ? ".reload" : ""))
                 }
                 console.log("✅ Built at: " + new Date())
                 return new ArrayBuffer(0)
@@ -341,6 +419,9 @@ class SrcBundler {
                 }
                 else if (request.url === "/source") {
                     response.end(fs.readFileSync("node_modules/.tmp/app.js", { encoding: "utf-8" }))
+                }
+                else if (request.url === "/livereload") {
+                    response.end(fs.readFileSync("node_modules/.tmp/reload.js", { encoding: "utf-8" }))
                 }
                 else {
                     response.end("")

@@ -1060,3 +1060,5 @@ declare class UIMenu {
     addMenuItem(title: string, actionBlock: () => void): void
     show(inView: UIView): void
 }
+
+declare function UIReload(reloadIdentifier: string, reloadCallback: (owner: any) => any): any
