@@ -224,6 +224,7 @@ class SrcBundler {
     constructor(dest, debugging) {
         this.dest = dest
         this.debugging = debugging
+        this.builtCodes = {}
         this.reloadingCodes = {}
     }
 
@@ -253,6 +254,9 @@ class SrcBundler {
                 function end() {
                     if (file.endsWith(".ts") && data.indexOf(`UIReload("`) >= 0) {
                         self.fetchReloadingNode(file)
+                    }
+                    if (file.endsWith(".ts")) {
+                        self.builtCodes[file] = fs.readFileSync(file, { encoding: "utf-8" })
                     }
                     if (file == path.resolve('src/main.ts')) {
                         data = resBundler.bundle() + "\n" + data
@@ -293,7 +297,7 @@ class SrcBundler {
                     const decorator = node.decorators.filter(it => it.getText(sourceFile).indexOf("@UIReload") >= 0)[0]
                     return decorator.expression.arguments[0].text
                 })()
-                if (this.reloadingCodes[reloadIdentifier] !== node.getText(sourceFile)) {
+                if (this.reloadingCodes[reloadIdentifier] !== undefined && this.reloadingCodes[reloadIdentifier] !== node.getText(sourceFile)) {
                     node.sourceFile = sourceFile
                     nodeChanges.push(node)
                 }
@@ -333,7 +337,7 @@ class SrcBundler {
         fs.writeFileSync("node_modules/.tmp/reload.js", ts.transpile(dist, { target: ts.ScriptTarget.ES5 }))
     }
 
-    build(watching, reloading) {
+    build(watching, reloading, ignoring) {
         if (this.locked === true) { this.waited = true; return }
         this.locked = true
         this.waited = false
@@ -341,6 +345,9 @@ class SrcBundler {
         if (watching === true) {
             b.plugin(watchify)
                 .on('update', (files) => {
+                    if ((files.every((file) => {
+                        return fs.readFileSync(file, { encoding: "utf-8" }) === this.builtCodes[file]
+                    }))) { this.build(true, false, true); return }
                     let reloadingNodes = []
                     files.forEach(file => {
                         this.diffReloadingNode(file).forEach(it => reloadingNodes.push(it))
@@ -351,12 +358,15 @@ class SrcBundler {
                     this.build(true, reloadingNodes.length > 0)
                 })
         }
+        if (reloading === false) {
+            this.reloadingCodes = {}
+        }
         b.bundle((error) => {
             if (error) {
                 console.error(error)
             }
             else {
-                if (this.dest === "node_modules/.tmp/app.js") {
+                if (this.dest === "node_modules/.tmp/app.js" && ignoring !== true) {
                     fs.writeFileSync("node_modules/.tmp/app.js.version", new Date().getTime() + (reloading ? ".reload" : ""))
                 }
                 console.log("✅ Built at: " + new Date())
