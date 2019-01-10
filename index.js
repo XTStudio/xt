@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 var browserify = require('browserify')
 var watchify = require('watchify')
-var tsify = require('tsify')
+var tsify = require('./local_modules/tsify')
 var ts = require('typescript')
 var through = require('through')
 var fs = require('fs')
