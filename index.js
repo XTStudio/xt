@@ -271,7 +271,7 @@ class SrcBundler {
         const program = ts.createProgram([file], { noResolve: true })
         const sourceFile = program.getSourceFile(file)
         const fetchNode = (node) => {
-            if (ts.isClassDeclaration(node) && node.decorators.length > 0 && node.decorators.filter(it => it.getText(sourceFile).indexOf("@UIReload") >= 0)) {
+            if (ts.isClassDeclaration(node) && node.decorators && node.decorators.length > 0 && node.decorators.filter(it => it.getText(sourceFile).indexOf("@UIReload") >= 0)) {
                 const reloadIdentifier = (() => {
                     const decorator = node.decorators.filter(it => it.getText(sourceFile).indexOf("@UIReload") >= 0)[0]
                     return decorator.expression.arguments[0].text
@@ -288,7 +288,7 @@ class SrcBundler {
         const program = ts.createProgram([file], { noResolve: true })
         const sourceFile = program.getSourceFile(file)
         const fetchNode = (node) => {
-            if (ts.isClassDeclaration(node) && node.decorators.length > 0 && node.decorators.filter(it => it.getText(sourceFile).indexOf("@UIReload") >= 0)) {
+            if (ts.isClassDeclaration(node) && node.decorators && node.decorators.length > 0 && node.decorators.filter(it => it.getText(sourceFile).indexOf("@UIReload") >= 0)) {
                 const reloadIdentifier = (() => {
                     const decorator = node.decorators.filter(it => it.getText(sourceFile).indexOf("@UIReload") >= 0)[0]
                     return decorator.expression.arguments[0].text
