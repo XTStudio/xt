@@ -16,8 +16,8 @@ class MainViewController extends UIViewController {
 
     viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        this.fooLabel.frame = UIRectMake(0, 0, 300, 300)
-        this.fooLabel.backgroundColor = UIColor.green
+        this.fooLabel.frame = this.view.bounds
+        this.fooLabel.backgroundColor = UIColor.yellow
         console.info("viewWillLayoutSubviews`1123123")
     }
 

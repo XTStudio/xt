@@ -1,6 +1,5 @@
 const fs = require('fs')
 const child_process = require('child_process')
-// const httpd = require('http-server')
 
 export class ChromeRunner {
 
@@ -27,7 +26,7 @@ export class ChromeRunner {
     }
 
     private installHTTPServer() {
-        console.log("Installing http-server, please wait.")
+        console.log("Installing http-server...")
         child_process.execSync('npm i http-server --no-save', { cwd: './' })
     }
 

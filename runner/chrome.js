@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require('fs');
 const child_process = require('child_process');
-// const httpd = require('http-server')
 class ChromeRunner {
     constructor() {
         this.httpdPort = 9000;
@@ -36,7 +35,7 @@ class ChromeRunner {
         });
     }
     installHTTPServer() {
-        console.log("Installing http-server, please wait.");
+        console.log("Installing http-server...");
         child_process.execSync('npm i http-server --no-save', { cwd: './' });
     }
     checkPort(port) {
