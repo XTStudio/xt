@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2015",
     "module": "commonjs",
-    "lib": [
-      "esnext",
-      "es2015.promise"
-    ],
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noImplicitThis": true,
     "alwaysStrict": true
-  }
+  },
+  "include": [
+    "cli/**/*"
+  ],
 }

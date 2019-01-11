@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>tests</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/gh/xtstudio/framework-web@e1f2df5c3a566f9d524b2186d4d04c8f62c22cda/build/dist.min.js"></script>
+    <script src="./app.js"></script>
+    <script>
+        var kimiDebugger = new KIMIDebugger()
+        kimiDebugger.connect(() => {
+            main.attachToElement(document.body)
+        }, () => {
+            main.attachToElement(document.body)
+        })
+    </script>
+</body>
+
+</html>
