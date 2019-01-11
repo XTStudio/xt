@@ -1,8 +1,8 @@
 /// <reference path="../../../types/index.d.ts" />
 
-@UIReload("MainViewController", sender => {
-    sender.viewWillLayoutSubviews()
-})
+// @UIReload("MainViewController", sender => {
+//     sender.viewWillLayoutSubviews()
+// })
 class MainViewController extends UIViewController {
 
     fooLabel = new UILabel
@@ -17,8 +17,8 @@ class MainViewController extends UIViewController {
     viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         this.fooLabel.frame = UIRectMake(0, 0, 300, 300)
-        this.fooLabel.backgroundColor = UIColor.yellow
-        console.info("viewWillLayoutSubviews")
+        this.fooLabel.backgroundColor = UIColor.green
+        console.info("viewWillLayoutSubviews`1123123")
     }
 
 }
