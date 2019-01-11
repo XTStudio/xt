@@ -1,3 +1,0 @@
-<view>
-    <xt pageID="{{pageID}}" view="{{main}}"></xt>
-</view>
