@@ -228,6 +228,7 @@ class SrcBundler {
         this.reloadingCodes = {}
     }
 
+
     compilerOptions() {
         try {
             const tsconfig = fs.readFileSync('tsconfig.json', { encoding: "utf-8" })
@@ -368,6 +369,7 @@ class SrcBundler {
             else {
                 if (this.dest === "node_modules/.tmp/app.js" && ignoring !== true) {
                     fs.writeFileSync("node_modules/.tmp/app.js.version", new Date().getTime() + (reloading ? ".reload" : ""))
+                    this.flushVersionCalls()
                 }
                 console.log("✅ Built at: " + new Date())
                 return new ArrayBuffer(0)
@@ -405,6 +407,10 @@ class SrcBundler {
         this.dest = 'node_modules/.tmp/app.js'
         this.debugging = true
         this.build(true)
+        this.versionResponsesHandler = []
+        setInterval(() => {
+            this.flushVersionCalls()
+        }, 30000)
         http.createServer((request, response) => {
             response.setHeader("Access-Control-Allow-Origin", "*")
             response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -425,7 +431,14 @@ class SrcBundler {
                     });
                 }
                 else if (request.url === "/version") {
-                    response.end(fs.readFileSync("node_modules/.tmp/app.js.version", { encoding: "utf-8" }))
+                    if (request.headers && request.headers["code-version"] && request.headers["code-version"] !== "undefined" && fs.readFileSync("node_modules/.tmp/app.js.version", { encoding: "utf-8" }) === request.headers["code-version"]) {
+                        this.versionResponsesHandler.push(() => {
+                            response.end(fs.readFileSync("node_modules/.tmp/app.js.version", { encoding: "utf-8" }))
+                        })
+                    }
+                    else {
+                        response.end(fs.readFileSync("node_modules/.tmp/app.js.version", { encoding: "utf-8" }))
+                    }
                 }
                 else if (request.url === "/source") {
                     response.end(fs.readFileSync("node_modules/.tmp/app.js", { encoding: "utf-8" }))
@@ -441,6 +454,11 @@ class SrcBundler {
             }
         }).listen(port)
         this.printIPs(port)
+    }
+
+    flushVersionCalls() {
+        this.versionResponsesHandler.forEach(it => it())
+        this.versionResponsesHandler = []
     }
 
     printIPs(port) {
