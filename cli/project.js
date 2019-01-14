@@ -4,9 +4,6 @@ const fs = require("fs");
 const utils_1 = require("./utils");
 class ProjectInitializer {
     init() {
-        if (!fs.existsSync("package.json")) {
-            throw Error("You should run [npm init] first.");
-        }
         fs.writeFileSync(".gitignore", `
 node_modules/
 .npm

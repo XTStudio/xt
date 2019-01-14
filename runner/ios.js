@@ -20,15 +20,16 @@ class iOSRunner {
         })();
         this.platform = "iOS Simulator";
         this.device = "iPhone 8";
-        this.os = "12.0";
+        this.os = "0.0";
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(`Current enviorment, platform = ${this.platform}, device = ${this.device}, os = ${this.os}`);
             console.log(`You may change parameters by using the same variables, such as '... --device "iPhone 7" --os "11.0"'.`);
             try {
                 this.checkCurrentOS();
                 yield this.checkXcode();
+                yield this.parseXcodeInfo();
+                console.log(`Current enviorment, platform = ${this.platform}, device = ${this.device}, os = ${this.os}`);
                 yield this.checkCocoaPods();
                 this.installModules();
                 yield this.podinstall();
@@ -53,6 +54,30 @@ class iOSRunner {
             catch (error) {
                 throw Error("Please install Xcode first. And install Xcode command line tools using 'xcode-select --install'");
             }
+        });
+    }
+    parseXcodeInfo() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((res, rej) => {
+                const listProcess = child_process.exec(`xcrun simctl list`);
+                let listOutput = '';
+                listProcess.stdout.on("data", (data) => {
+                    listOutput += data.toString();
+                });
+                listProcess.on("exit", () => {
+                    const matches = listOutput.match(/-- iOS (.*?) --/ig);
+                    if (matches) {
+                        const versions = matches.map(it => it.replace("-- iOS ", "").replace(" --", ""));
+                        if (versions.indexOf(this.os) < 0) {
+                            this.os = utils_1.latestVersion(versions);
+                            res();
+                        }
+                    }
+                    if (listOutput.indexOf(this.device) < 0) {
+                        this.device = "iPhone 8";
+                    }
+                });
+            });
         });
     }
     checkCocoaPods() {
@@ -96,7 +121,7 @@ class iOSRunner {
         });
     }
     runSimulator() {
-        console.log("Installing on iOS Simulator...");
+        console.log("Runing on iOS Simulator...");
         child_process.exec(`ios-sim launch ${this.projectName}.app --devicetypeid "${this.device.replace(/ /ig, '-')}, ${this.os}"`, { cwd: `./platform/ios/build/Build/Products/Debug-iphonesimulator` });
     }
 }

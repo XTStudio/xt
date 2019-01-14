@@ -4,9 +4,6 @@ import { fsDeepCopy } from "./utils";
 export class ProjectInitializer {
 
     init() {
-        if (!fs.existsSync("package.json")) {
-            throw Error("You should run [npm init] first.")
-        }
         fs.writeFileSync(".gitignore", `
 node_modules/
 .npm

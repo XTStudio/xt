@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 const fs = require('fs')
+
+if (!fs.existsSync("package.json")) {
+    throw Error("You should run [npm init] first.")
+}
+
 const program = require('commander')
 const { ProjectInitializer } = require('./cli/project')
 const { Packager } = require('./cli/packager')
@@ -10,30 +15,49 @@ const { AndroidRunner } = require('./runner/android')
 
 program
     .version(JSON.parse(fs.readFileSync(__dirname + "/package.json", { encoding: "utf-8" })).version)
-    .option('-i, --init', 'initialize a XT project')
+    .option('init', 'initialize a XT project')
+    .option('build', 'trigger a build')
+    .option('watch', 'trigger a build and watch files change')
+    .option('debug', 'trigger a debug build and watch files change')
+    .option('run [run]', 'specific a debugging target <ios, android, chrome, wx>')
     .option('-o, --output [output]', 'specific app.js destination')
-    .option('-b, --build', 'trigger a build')
-    .option('-w, --watch', 'trigger a build and watch files change')
-    .option('-d, --debug', 'trigger a debug build and watch files change')
     .option('-p, --port [port]', 'specific the debugger port')
-    .option('-r, --run [run]', 'specific a debugging target <ios, android, chrome, wx>')
+    .option('--platform [platform]')
+    .option('--device [device]')
+    .option('--os [os]')
     .parse(process.argv)
+
+const runClient = () => {
+    if (program.run === "chrome") {
+        new ChromeRunner().run()
+    }
+    else if (program.run === "ios") {
+        const runner = new iOSRunner()
+        if (program.platform) {
+            runner.platform = program.platform
+        }
+        if (program.device) {
+            runner.device = program.device
+        }
+        if (program.os) {
+            runner.os = program.os
+        }
+        runner.run()
+    }
+    else if (program.run === "android") {
+        new AndroidRunner().run()
+    }
+}
 
 if (program.init) {
     new ProjectInitializer().init()
 }
 else if (program.debug) {
     new Packager("", true).debug(program.port || 8090)
-    if (program.run === "chrome") {
-        new ChromeRunner().run()
-    }
-    else if (program.run === "ios") {
-        new iOSRunner().run()
-    }
-    else if (program.run === "android") {
-        new AndroidRunner().run()
-    }
+    runClient()
 }
 else {
-    new Packager((program.output || "build/app.js"), program.watch !== undefined).build()
+    new Packager(program.output, program.watch !== undefined).build().then(() => {
+        runClient()
+    })
 }
