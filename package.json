@@ -1,6 +1,6 @@
 {
   "name": "xt-studio",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "XT makes it easy and fast to build beautiful mobile apps.",
   "scripts": {
     "test": "node test.js"
