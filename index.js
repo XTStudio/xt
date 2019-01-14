@@ -6,6 +6,7 @@ const { ProjectInitializer } = require('./cli/project')
 const { Packager } = require('./cli/packager')
 const { ChromeRunner } = require('./runner/chrome')
 const { iOSRunner } = require('./runner/ios')
+const { AndroidRunner } = require('./runner/android')
 
 program
     .version(JSON.parse(fs.readFileSync(__dirname + "/package.json", { encoding: "utf-8" })).version)
@@ -28,6 +29,9 @@ else if (program.debug) {
     }
     else if (program.run === "ios") {
         new iOSRunner().run()
+    }
+    else if (program.run === "android") {
+        new AndroidRunner().run()
     }
 }
 else {

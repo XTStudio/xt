@@ -26,7 +26,8 @@
     "tinyify": "^2.4.3",
     "tsify": "^4.0.0",
     "typescript": "^3.0.1",
-    "watchify": "^3.11.0"
+    "watchify": "^3.11.0",
+    "xml2js": "^0.4.19"
   },
   "typings": "./types/index.d.ts",
   "types": "./types/index.d.ts",

@@ -12,5 +12,8 @@
         "android": ""
     },
     "author": "",
-    "license": "ISC"
+    "license": "ISC",
+    "dependencies": {
+        "xml2js": "^0.4.19"
+    }
 }

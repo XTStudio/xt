@@ -16,7 +16,14 @@ export const fsDeepCopy = function (srcDir: string, dstDir: string) {
             results = results.concat(fsDeepCopy(src, dst));
         } else {
             try {
-                fs.writeFileSync(dst, fs.readFileSync(src));
+                if (src.endsWith('.jar')) {
+                    const _src = src
+                    const _dst = dst
+                    setTimeout(() => {
+                        fs.copyFileSync(_src, _dst);
+                    }, 1000)
+                }
+                fs.copyFileSync(src, dst);
             } catch (e) { }
             results.push(src);
         }

@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require('fs');
 const child_process = require('child_process');
 const utils_1 = require("./utils");
+let currentProcess;
 class iOSRunner {
     constructor() {
         this.projectName = (() => {
@@ -30,6 +31,7 @@ class iOSRunner {
                 yield this.checkXcode();
                 yield this.checkCocoaPods();
                 this.installModules();
+                yield this.podinstall();
                 yield this.xcodebuild();
                 this.runSimulator();
             }
@@ -66,27 +68,31 @@ class iOSRunner {
     installModules() {
         if (!fs.existsSync('./node_modules/.bin/ios-sim')) {
             console.log("Installing ios-sim...");
-            child_process.execSync('npm i ios-sim --no-save', { cwd: './' });
+            child_process.execSync('npm i ios-sim --no-save', { cwd: './', stdio: "inherit" });
         }
     }
-    xcodebuild() {
-        console.log("Runing xcodebuild...");
+    podinstall() {
+        console.log("Runing pod install ...");
         return new Promise((res, rej) => {
-            const buildProcess = child_process.exec(`xcrun xcodebuild -scheme ${this.projectName} -workspace ${this.projectName}.xcworkspace -configuration Debug -destination 'platform=${this.platform},name=${this.device},OS=${this.os}' -derivedDataPath build`, { cwd: './platform/ios/' });
-            buildProcess.stdout.on('data', function (data) {
-                console.log(data.toString());
-            });
-            buildProcess.stderr.on('data', function (data) {
-                console.error(data.toString());
-            });
-            buildProcess.on('exit', function (code) {
-                if (code === 0) {
-                    res();
-                }
-                else {
-                    rej(Error("xcodebuild failed with code: " + code.toString()));
-                }
-            });
+            try {
+                child_process.execSync(`pod install`, { cwd: './platform/ios/', stdio: "inherit" });
+                res();
+            }
+            catch (error) {
+                rej(error);
+            }
+        });
+    }
+    xcodebuild() {
+        console.log("Runing xcodebuild ...");
+        return new Promise((res, rej) => {
+            try {
+                child_process.execSync(`xcrun xcodebuild -scheme ${this.projectName} -workspace ${this.projectName}.xcworkspace -configuration Debug -destination 'platform=${this.platform},name=${this.device},OS=${this.os}' -derivedDataPath build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO`, { cwd: './platform/ios/', stdio: "inherit" });
+                res();
+            }
+            catch (error) {
+                rej(error);
+            }
         });
     }
     runSimulator() {
