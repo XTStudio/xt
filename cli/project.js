@@ -53,14 +53,13 @@ global.main = new MainViewController
     }
 }`);
         const pkg = JSON.parse(fs.readFileSync('package.json', { encoding: "utf-8" }));
-        const projectName = pkg.name;
         pkg.scripts = {
-            watch: `./node_modules/.bin/xt watch & ./node_modules/.bin/xt watch --output ./platform/ios/${projectName}/JSBundle/app.js & ./node_modules/.bin/xt watch --output ./platform/web/app.js & ./node_modules/.bin/xt watch --output ./platform/android/app/src/main/assets/app.js & ./node_modules/.bin/xt watch --wx --output ./platform/wx/src/app.js`,
-            build: `./node_modules/.bin/xt build & ./node_modules/.bin/xt build --output ./platform/ios/${projectName}/JSBundle/app.js & ./node_modules/.bin/xt build --output ./platform/web/app.js & ./node_modules/.bin/xt build --output ./platform/android/app/src/main/assets/app.js & ./node_modules/.bin/xt build --wx --output ./platform/wx/src/app.js`,
+            watch: `./node_modules/.bin/xt watch`,
+            build: `./node_modules/.bin/xt build`,
             debug: './node_modules/.bin/xt debug',
-            web: "cd platform/web && http-server -c-1",
-            ios: "open platform/ios/*.xcworkspace",
-            android: "",
+            web: "./node_modules/.bin/xt debug run chrome",
+            ios: "./node_modules/.bin/xt debug run ios",
+            android: "./node_modules/.bin/xt debug run android",
         };
         fs.writeFileSync('package.json', JSON.stringify(pkg, undefined, 4));
         this.copy();
