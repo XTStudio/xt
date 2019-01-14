@@ -32,7 +32,14 @@
   "typings": "./types/index.d.ts",
   "types": "./types/index.d.ts",
   "files": [
-    "**/*",
+    "cli/**/*",
+    "local_modules/**/*",
+    "program/**/*",
+    "runner/**/*",
+    "types/**/*",
+    "index.js",
+    "LICENSE",
+    "README",
     "**/.gitignore"
   ],
   "devDependencies": {
