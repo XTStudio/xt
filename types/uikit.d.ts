@@ -937,7 +937,8 @@ declare class UIRotationGestureRecognizer extends UIGestureRecognizer {
 declare class UIColor {
     static readonly black: UIColor
     static readonly clear: UIColor
-    static readonly gray: UIColor
+    static readonly gray: UIColor // deprecated.
+    static readonly grey: UIColor
     static readonly red: UIColor
     static readonly yellow: UIColor
     static readonly green: UIColor

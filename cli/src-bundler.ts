@@ -13,11 +13,10 @@ require("./utils").consoleMethodSwizzler()
 export class SrcBundler {
 
     private resBundler = new ResBundler
+    private browserifyInstance = this.createBrowserify()
     private builtCodes: { [key: string]: string } = {}
     private reloadingCodes: { [key: string]: string } = {}
     private versionResponsesHandler: (() => void)[] = []
-    private isLocked = false
-    private isWaited = false
 
     constructor(private dist: string, private isWatching: boolean, private isDebugging: boolean = false) {
         if (isDebugging) {
@@ -25,38 +24,15 @@ export class SrcBundler {
         }
     }
 
-    triggerBuild(options: { liveReloading?: boolean, noChanges?: boolean } = { liveReloading: false, noChanges: false }) {
+    triggerBuild(reloading: boolean = false) {
         let resHanlder: any = undefined
-        if (this.isLocked === true) { this.isWaited = true; return }
-        this.isLocked = true
-        this.isWaited = false
-        const b = this.createBrowserify()
-        if (this.isWatching === true) {
-            b.plugin(watchify)
-                .on('update', (files: string[]) => {
-                    if ((files.every((file) => {
-                        return fs.readFileSync(file, { encoding: "utf-8" }) === this.builtCodes[file]
-                    }))) { this.triggerBuild({ noChanges: true }); return }
-                    let reloadingNodes: ts.Node[] = []
-                    files.forEach(file => {
-                        this.diffReloadingNode(file).forEach(it => reloadingNodes.push(it))
-                    })
-                    if (reloadingNodes.length > 0) {
-                        this.buildReloading(reloadingNodes)
-                    }
-                    this.triggerBuild({ liveReloading: reloadingNodes.length > 0 })
-                })
-        }
-        if (!options.liveReloading) {
-            this.reloadingCodes = {}
-        }
-        b.bundle((error: Error | undefined) => {
+        this.browserifyInstance.bundle((error: Error | undefined) => {
             if (error) {
                 console.error(error)
             }
             else {
-                if (this.isDebugging && options.noChanges !== true) {
-                    fs.writeFileSync("node_modules/.tmp/app.js.version", new Date().getTime() + (options.liveReloading ? ".reload" : ""))
+                if (this.isDebugging) {
+                    fs.writeFileSync("node_modules/.tmp/app.js.version", new Date().getTime() + (reloading ? ".reload" : ""))
                     this.flushVersionCalls()
                 }
                 console.log("✅ Built at: " + new Date())
@@ -73,10 +49,6 @@ export class SrcBundler {
                 let stream = fs.createWriteStream(this.dist)
                 stream.on("close", () => {
                     this.wxPatch()
-                    this.isLocked = false
-                    if (this.isWaited) {
-                        this.triggerBuild()
-                    }
                 })
                 return stream
             })())
@@ -100,6 +72,7 @@ export class SrcBundler {
             packageCache: {},
             debug: this.isDebugging,
             ignoreMissing: true,
+            plugin: [(this.isWatching ? watchify : undefined)],
         })
             .add('src/main.ts')
             .plugin(tsify, this.compilerOptions())
@@ -126,6 +99,27 @@ export class SrcBundler {
         if (this.isDebugging !== true) {
             instance = instance.transform('uglifyify', { sourceMap: false })
         }
+        instance.on("update", (files: string[]) => {
+            if ((files.every((file) => {
+                return fs.readFileSync(file, { encoding: "utf-8" }) === this.builtCodes[file]
+            }))) {
+                this.browserifyInstance.bundle(() => { });
+                return;
+            }
+            if (this.isDebugging) {
+                let reloadingNodes: ts.Node[] = []
+                files.forEach(file => {
+                    this.diffReloadingNode(file).forEach(it => reloadingNodes.push(it))
+                })
+                if (reloadingNodes.length > 0) {
+                    this.buildReloading(reloadingNodes)
+                }
+                this.triggerBuild(reloadingNodes.length > 0)
+            }
+            else {
+                this.triggerBuild()
+            }
+        })
         return instance
     }
 
@@ -217,7 +211,6 @@ export class SrcBundler {
         try {
             fs.mkdirSync('node_modules/.tmp')
         } catch (error) { }
-        this.triggerBuild()
         this.versionResponsesHandler = []
         setInterval(() => {
             this.flushVersionCalls()
@@ -266,6 +259,7 @@ export class SrcBundler {
             }
         }).listen(port)
         this.printIPs(port)
+        return this.triggerBuild()
     }
 
     private flushVersionCalls() {

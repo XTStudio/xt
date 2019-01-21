@@ -32,7 +32,7 @@ class Packager {
     }
     debug(port) {
         this.srcBundler = new src_bundler_1.SrcBundler("", this.isWatching, true);
-        this.srcBundler.triggerDebug(port);
+        return this.srcBundler.triggerDebug(port);
     }
 }
 exports.Packager = Packager;

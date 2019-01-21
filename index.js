@@ -53,8 +53,9 @@ if (program.init) {
     new ProjectInitializer().init()
 }
 else if (program.debug) {
-    new Packager("", true).debug(program.port || 8090)
-    runClient()
+    new Packager("", true).debug(program.port || 8090).then(() => {
+        runClient()
+    })
 }
 else {
     new Packager(program.output, program.watch !== undefined).build().then(() => {

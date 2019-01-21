@@ -35,7 +35,7 @@ export class Packager {
 
     debug(port: number) {
         this.srcBundler = new SrcBundler("", this.isWatching, true)
-        this.srcBundler.triggerDebug(port)
+        return this.srcBundler.triggerDebug(port)
     }
 
 }
