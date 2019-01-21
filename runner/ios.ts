@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 const child_process = require('child_process')
 import { cmdExists, latestVersion } from "./utils";
 
@@ -110,7 +111,7 @@ export class iOSRunner {
 
     private runSimulator() {
         console.log("Runing on iOS Simulator...")
-        child_process.exec(`ios-sim launch ${this.projectName}.app --devicetypeid "${this.device.replace(/ /ig, '-')}, ${this.os}"`, { cwd: `./platform/ios/build/Build/Products/Debug-iphonesimulator` })
+        child_process.exec(`node ${path.resolve('./node_modules/.bin/ios-sim')} launch ${this.projectName}.app --devicetypeid "${this.device.replace(/ /ig, '-')}, ${this.os}"`, { cwd: `./platform/ios/build/Build/Products/Debug-iphonesimulator` })
     }
 
 }

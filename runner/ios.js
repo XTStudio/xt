@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require('fs');
+const path = require('path');
 const child_process = require('child_process');
 const utils_1 = require("./utils");
 let currentProcess;
@@ -122,7 +123,7 @@ class iOSRunner {
     }
     runSimulator() {
         console.log("Runing on iOS Simulator...");
-        child_process.exec(`ios-sim launch ${this.projectName}.app --devicetypeid "${this.device.replace(/ /ig, '-')}, ${this.os}"`, { cwd: `./platform/ios/build/Build/Products/Debug-iphonesimulator` });
+        child_process.exec(`node ${path.resolve('./node_modules/.bin/ios-sim')} launch ${this.projectName}.app --devicetypeid "${this.device.replace(/ /ig, '-')}, ${this.os}"`, { cwd: `./platform/ios/build/Build/Products/Debug-iphonesimulator` });
     }
 }
 exports.iOSRunner = iOSRunner;

@@ -17,7 +17,9 @@ module.exports.transformer = (() => {
             if (ts.isCallExpression(node) && isConsoleCall(node, sourceFile) && node.pos >= 0) {
                 const args = node.arguments.slice()
                 let codeLine = ts.getLineAndCharacterOfPosition(sourceFile, node.getStart(sourceFile)).line
-                args.push(ts.createLiteral(`<<< ${sourceFile.fileName}:${codeLine + 1}`))
+                const originalFileName = sourceFile.originalFileName.replace(sourceFile.originalFileName.replace(new RegExp(sourceFile.fileName, "ig"), ""), "")
+                if (originalFileName.indexOf(" ") >= 0) { return ts.visitEachChild(node, visitor, ctx) }
+                args.push(ts.createLiteral(`<<< ${originalFileName}:${codeLine + 1}`))
                 node.arguments = ts.createNodeArray(args)
             }
             return ts.visitEachChild(node, visitor, ctx)
