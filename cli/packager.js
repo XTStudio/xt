@@ -33,9 +33,11 @@ class Packager {
     debug(port) {
         try {
             require('child_process').execSync(`kill $(lsof -t -i:${port})`);
+            require('child_process').execSync(`kill $(lsof -t -i:8091)`);
         }
         catch (error) { }
         this.srcBundler = new src_bundler_1.SrcBundler("", this.isWatching, true);
+        this.srcBundler.setupTinyDebugger();
         return this.srcBundler.triggerDebug(port);
     }
 }

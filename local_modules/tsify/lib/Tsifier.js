@@ -201,10 +201,16 @@ module.exports = function (ts) {
 		}
 
 		var emit_t0 = time.start();
+
+		var beforeTransformers = []
+
+		if (process.argv.indexOf("debug") >= 0) {
+			beforeTransformers.push(require('./BPTransfomer').transformer)
+			beforeTransformers.push(require('./LogTransfomer').transformer)
+		}
+
 		var emitOutput = program.emit(undefined, undefined, undefined, undefined, {
-			before: [
-				require('./LogTransfomer').transformer
-			]
+			before: beforeTransformers
 		});
 		time.stop(emit_t0, 'emit program');
 

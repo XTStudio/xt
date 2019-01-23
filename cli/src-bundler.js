@@ -10,6 +10,7 @@ const watchify = require('watchify');
 const tsify = require('../local_modules/tsify');
 const through = require('through');
 const strip_json_comments = require('strip-json-comments');
+const { TinyDebugger } = require('tiny-debugger/server/index');
 require("./utils").consoleMethodSwizzler();
 class SrcBundler {
     constructor(dist, isWatching, isDebugging = false) {
@@ -49,6 +50,7 @@ class SrcBundler {
             .pipe((() => {
             let stream = fs.createWriteStream(this.dist);
             stream.on("close", () => {
+                this.debugPatch();
                 this.wxPatch();
             });
             return stream;
@@ -199,6 +201,17 @@ class SrcBundler {
         });
         fs.writeFileSync("node_modules/.tmp/reload.js", ts.transpile(dist, { target: ts.ScriptTarget.ES5 }));
     }
+    debugPatch() {
+        if (process.argv.indexOf("debug") >= 0) {
+            try {
+                let data = fs.readFileSync(this.dist, { encoding: "utf-8" });
+                const debuggerScript = fs.readFileSync(path.resolve('node_modules', 'tiny-debugger', 'client/index.js'), { encoding: "utf-8" });
+                data = `var $__debugger;(function(){${debuggerScript.replace('var $debugger = ', '$__debugger =')}})();$__debugger.start();\n${data}`;
+                fs.writeFileSync(this.dist, data);
+            }
+            catch (error) { }
+        }
+    }
     wxPatch() {
         if (process.argv.indexOf("--wx") > 0) {
             try {
@@ -222,6 +235,10 @@ class SrcBundler {
             response.setHeader("Access-Control-Allow-Origin", "*");
             response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
             response.setHeader('Access-Control-Allow-Headers', '*');
+            if (request.method === "OPTIONS") {
+                response.statusCode = 200;
+                return response.end();
+            }
             try {
                 if (request.url === "/console") {
                     let body = '';
@@ -265,6 +282,35 @@ class SrcBundler {
         }).listen(port);
         this.printIPs(port);
         return this.triggerBuild();
+    }
+    setupTinyDebugger() {
+        const tinyDebugger = new TinyDebugger();
+        tinyDebugger.setBreakpoints(["src/main.ts:12"]);
+        tinyDebugger.on("client.paused", (client, params) => {
+            if (client && params && params.uri) {
+                console.log(`[Tiny-Debugger] Break on ${params.uri}`);
+                console.log(`[Tiny-Debugger] Enter 'c' to continue. Enter 'n' to next. Type scripts to eval.`);
+                let prompt = () => {
+                    process.stdin.once("data", (data) => {
+                        if (data.toString() === "c\n") {
+                            client.emit("resume");
+                        }
+                        else if (data.toString() === "n\n") {
+                            client.emit("resume", { next: true });
+                        }
+                        else if (data.toString().length > 0) {
+                            client.emit("resume", { eval: data.toString() });
+                            prompt();
+                        }
+                        else {
+                            prompt();
+                        }
+                    });
+                };
+                prompt();
+            }
+        });
+        tinyDebugger.createServer();
     }
     flushVersionCalls() {
         this.versionResponsesHandler.forEach(it => it());
