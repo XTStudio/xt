@@ -311,22 +311,24 @@ class SrcBundler {
         });
         process.stdin.on("data", (data) => {
             if (typeof data === "object" || typeof data === "string") {
-                const value = data.toString();
-                if (value.indexOf("[Tiny-Debugger] setBreakpoint on ") === 0) {
-                    tinyDebugger.setBreakpoint(value.replace("[Tiny-Debugger] setBreakpoint on ", "").trim());
-                }
-                else if (value.indexOf("[Tiny-Debugger] setBreakpoints on ") === 0) {
-                    tinyDebugger.setBreakpoints(JSON.parse(value.replace("[Tiny-Debugger] setBreakpoints on ", "").trim()));
-                }
-                else if (value.indexOf("[Tiny-Debugger] removeBreakpoint on ") === 0) {
-                    tinyDebugger.removeBreakpoint(value.replace("[Tiny-Debugger] removeBreakpoint on ", "").trim());
-                }
-                else if (value.indexOf("[Tiny-Debugger] removeAllBreakpoints") === 0) {
-                    tinyDebugger.removeAllBreakpoints();
-                }
-                else if (value.indexOf("[Tiny-Debugger] removeBreakpointsWithPrefix ") === 0) {
-                    tinyDebugger.removeBreakpointsWithPrefix(value.replace("[Tiny-Debugger] removeBreakpointsWithPrefix ", "").trim());
-                }
+                const values = data.toString();
+                values.split("\n").forEach(value => {
+                    if (value.indexOf("[Tiny-Debugger] setBreakpoint on ") === 0) {
+                        tinyDebugger.setBreakpoint(value.replace("[Tiny-Debugger] setBreakpoint on ", "").trim());
+                    }
+                    else if (value.indexOf("[Tiny-Debugger] setBreakpoints on ") === 0) {
+                        tinyDebugger.setBreakpoints(JSON.parse(value.replace("[Tiny-Debugger] setBreakpoints on ", "").trim()));
+                    }
+                    else if (value.indexOf("[Tiny-Debugger] removeBreakpoint on ") === 0) {
+                        tinyDebugger.removeBreakpoint(value.replace("[Tiny-Debugger] removeBreakpoint on ", "").trim());
+                    }
+                    else if (value.indexOf("[Tiny-Debugger] removeAllBreakpoints") === 0) {
+                        tinyDebugger.removeAllBreakpoints();
+                    }
+                    else if (value.indexOf("[Tiny-Debugger] removeBreakpointsWithPrefix ") === 0) {
+                        tinyDebugger.removeBreakpointsWithPrefix(value.replace("[Tiny-Debugger] removeBreakpointsWithPrefix ", "").trim());
+                    }
+                });
             }
         });
         tinyDebugger.createServer();
