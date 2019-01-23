@@ -281,7 +281,6 @@ export class SrcBundler {
 
     setupTinyDebugger() {
         const tinyDebugger = new TinyDebugger()
-        TinyDebugger.shared = tinyDebugger
         tinyDebugger.on("client.paused", (client: any, params: any) => {
             if (client && params && params.uri) {
                 console.log(`[Tiny-Debugger] Break on ${params.uri}`)
@@ -304,6 +303,23 @@ export class SrcBundler {
                     })
                 }
                 prompt()
+            }
+        })
+        process.stdin.on("data", (data) => {
+            if (typeof data === "object" || typeof data === "string") {
+                const value = data.toString()
+                if (value.indexOf("[Tiny-Debugger] setBreakpoint on ") === 0) {
+                    tinyDebugger.setBreakpoint(value.replace("[Tiny-Debugger] setBreakpoint on ", "").trim())
+                }
+                else if (value.indexOf("[Tiny-Debugger] setBreakpoints on ") === 0) {
+                    tinyDebugger.setBreakpoints(JSON.parse(value.replace("[Tiny-Debugger] setBreakpoints on ", "").trim()))
+                }
+                else if (value.indexOf("[Tiny-Debugger] removeBreakpoint on ") === 0) {
+                    tinyDebugger.removeBreakpoint(value.replace("[Tiny-Debugger] removeBreakpoint on ", "").trim())
+                }
+                else if (value.indexOf("[Tiny-Debugger] removeAllBreakpoints") === 0) {
+                    tinyDebugger.removeAllBreakpoints()
+                }
             }
         })
         tinyDebugger.createServer()
