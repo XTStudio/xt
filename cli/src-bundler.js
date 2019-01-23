@@ -324,6 +324,9 @@ class SrcBundler {
                 else if (value.indexOf("[Tiny-Debugger] removeAllBreakpoints") === 0) {
                     tinyDebugger.removeAllBreakpoints();
                 }
+                else if (value.indexOf("[Tiny-Debugger] removeBreakpointsWithPrefix ") === 0) {
+                    tinyDebugger.removeBreakpointsWithPrefix(value.replace("[Tiny-Debugger] removeBreakpointsWithPrefix ", "").trim());
+                }
             }
         });
         tinyDebugger.createServer();
