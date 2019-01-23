@@ -18,7 +18,6 @@ module.exports.transformer = (() => {
                 const args = node.arguments.slice()
                 let codeLine = ts.getLineAndCharacterOfPosition(sourceFile, node.getStart(sourceFile)).line
                 const originalFileName = sourceFile.originalFileName.replace(sourceFile.originalFileName.replace(new RegExp(sourceFile.fileName, "ig"), ""), "")
-                if (originalFileName.indexOf(" ") >= 0) { return ts.visitEachChild(node, visitor, ctx) }
                 args.push(ts.createLiteral(`<<< ${originalFileName}:${codeLine + 1}`))
                 node.arguments = ts.createNodeArray(args)
             }

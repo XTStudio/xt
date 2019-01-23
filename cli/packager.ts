@@ -34,6 +34,9 @@ export class Packager {
     }
 
     debug(port: number) {
+        try {
+            require('child_process').execSync(`kill $(lsof -t -i:${port})`)
+        } catch (error) { }
         this.srcBundler = new SrcBundler("", this.isWatching, true)
         return this.srcBundler.triggerDebug(port)
     }
