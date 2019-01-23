@@ -281,7 +281,7 @@ export class SrcBundler {
 
     setupTinyDebugger() {
         const tinyDebugger = new TinyDebugger()
-        tinyDebugger.setBreakpoints(["src/main.ts:12"])
+        TinyDebugger.shared = tinyDebugger
         tinyDebugger.on("client.paused", (client: any, params: any) => {
             if (client && params && params.uri) {
                 console.log(`[Tiny-Debugger] Break on ${params.uri}`)
