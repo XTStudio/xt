@@ -75,21 +75,21 @@ global.main = new MainViewController
                     "request": "launch",
                     "name": "Debug XT on Chrome",
                     "platform": "chrome",
-                    "workspace": "\${workspaceFolder}/"
+                    "workspace": "\${workspaceFolder}"
                 },
                 {
                     "type": "xt",
                     "request": "launch",
                     "name": "Debug XT on Android Emulator",
                     "platform": "android",
-                    "workspace": "\${workspaceFolder}/"
+                    "workspace": "\${workspaceFolder}"
                 },
                 {
                     "type": "xt",
                     "request": "launch",
                     "name": "Debug XT on iOS Simulator",
                     "platform": "ios",
-                    "workspace": "\${workspaceFolder}/"
+                    "workspace": "\${workspaceFolder}"
                 }
             ]
         }
