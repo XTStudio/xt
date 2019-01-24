@@ -57,7 +57,7 @@ global.main = new MainViewController
             watch: `./node_modules/.bin/xt watch`,
             build: `./node_modules/.bin/xt build`,
             debug: './node_modules/.bin/xt debug',
-            web: "./node_modules/.bin/xt debug run chrome",
+            chrome: "./node_modules/.bin/xt debug run chrome",
             ios: "./node_modules/.bin/xt debug run ios",
             android: "./node_modules/.bin/xt debug run android",
         }
