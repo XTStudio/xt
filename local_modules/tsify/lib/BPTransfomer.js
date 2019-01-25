@@ -3,6 +3,15 @@ const ts = require('typescript')
 function transformStatements(node, sourceFile) {
     const statements = node.statements.slice()
     let newStatements = []
+    let declaredVariables = []
+    if (node.parent) {
+        const parentNode = node.parent
+        if (ts.isFunctionLike(parentNode)) {
+            parentNode.parameters.forEach(it => {
+                declaredVariables.push(it)
+            })
+        }
+    }
     statements.forEach(it => {
         if (it.pos >= 0) {
             let info = ts.getLineAndCharacterOfPosition(sourceFile, it.getStart(sourceFile))
@@ -13,13 +22,21 @@ function transformStatements(node, sourceFile) {
                 ts.createNodeArray(),
                 ts.createNodeArray([
                     ts.createLiteral(uri),
-                    ts.createIdentifier("(script) => { console.log(eval(script), '<<< REPL'); }")
+                    ts.createIdentifier("(script) => { console.log(eval(script), '<<< REPL'); }"),
+                    ts.createObjectLiteral(declaredVariables.map(it => {
+                        return ts.createShorthandPropertyAssignment(it.name)
+                    }))
                 ]
                 )
             )
             newStatements.push(stepStatement)
         }
         newStatements.push(it)
+        if (ts.isVariableStatement(it)) {
+            it.declarationList.declarations.forEach(it => {
+                declaredVariables.push(it)
+            })
+        }
     })
     node.statements = ts.createNodeArray(newStatements)
 }

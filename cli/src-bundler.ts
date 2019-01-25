@@ -281,9 +281,13 @@ export class SrcBundler {
 
     setupTinyDebugger() {
         const tinyDebugger = new TinyDebugger()
+        tinyDebugger.setBreakpoint("src/Usss sss/e.ts:2")
         tinyDebugger.on("client.paused", (client: any, params: any) => {
             if (client && params && params.uri) {
                 console.log(`[Tiny-Debugger] Break on ${params.uri}`)
+                if (params.variables && Object.keys(params.variables).length > 0) {
+                    console.log(`[Tiny-Debugger] Break variables ${new Buffer(JSON.stringify(params.variables)).toString('base64')}`)
+                }
                 console.log(`[Tiny-Debugger] Enter 'c' to continue. Enter 'n' to next. Type scripts to eval.`)
                 let prompt = () => {
                     process.stdin.once("data", (data) => {
