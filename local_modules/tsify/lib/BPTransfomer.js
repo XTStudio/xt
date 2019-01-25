@@ -14,6 +14,9 @@ function transformStatements(node, sourceFile) {
     }
     statements.forEach(it => {
         if (it.pos >= 0) {
+            if (ts.isDebuggerStatement(it)) {
+                newStatements.push(ts.createCall(ts.createIdentifier("$__debugger.debuggerStep")))
+            }
             let info = ts.getLineAndCharacterOfPosition(sourceFile, it.getStart(sourceFile))
             const originalFileName = sourceFile.originalFileName.replace(sourceFile.originalFileName.replace(new RegExp(sourceFile.fileName, "ig"), ""), "")
             let uri = `${originalFileName}:${info.line + 1}`
