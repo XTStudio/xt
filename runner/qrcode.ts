@@ -39,7 +39,7 @@ export class QRCodeRunner {
         getLocalNetworkIPs().forEach(ip => {
             qrcode.generate(`http://${ip}:${this.httpdPort}/platform/web/?debug`, { small: true }, (qrcode: any) => {
                 console.log(`====== QRCode Generator >>> ${ip} ======`)
-                console.log(`====== Content >>> ${`http://${ip}:${this.httpdPort}/platform/web/?debug`}`)
+                console.log(`====== QRCode Content >>> ${`http://${ip}:${this.httpdPort}/platform/web/?debug`}`)
                 console.log(qrcode)
                 console.log("====== QRCode End ======")
             });
