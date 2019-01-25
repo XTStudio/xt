@@ -49,7 +49,7 @@ export class QRCodeRunner {
 
     private installQRCodeGenerator() {
         console.log("Installing qrcode-terminal...")
-        child_process.execSync('npm i qrcode-terminal', { cwd: './' })
+        child_process.execSync('npm i git+https://github.com/PonyCui/qrcode-terminal.git', { cwd: './' })
     }
 
     private checkPort(port: number): Promise<boolean> {

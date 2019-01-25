@@ -56,7 +56,7 @@ class QRCodeRunner {
     }
     installQRCodeGenerator() {
         console.log("Installing qrcode-terminal...");
-        child_process.execSync('npm i qrcode-terminal', { cwd: './' });
+        child_process.execSync('npm i git+https://github.com/PonyCui/qrcode-terminal.git', { cwd: './' });
     }
     checkPort(port) {
         return new Promise((res) => {
