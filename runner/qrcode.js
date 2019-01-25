@@ -8,21 +8,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const utils_1 = require("./utils");
 const fs = require('fs');
+const path = require('path');
 const child_process = require('child_process');
-class ChromeRunner {
+class QRCodeRunner {
     constructor() {
         this.httpdPort = 9000;
     }
     run() {
-        this.runHTTPServer();
-        setTimeout(() => {
-            child_process.exec(`/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome "http://127.0.0.1:${this.httpdPort}/platform/web/?debug" --auto-open-devtools-for-tabs --use-mobile-user-agent`);
-        }, 500);
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.runHTTPServer();
+            this.generateQRCode();
+        });
     }
     runHTTPServer() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!fs.existsSync('./node_modules/.bin/http-server')) {
+            if (!fs.existsSync(path.resolve('./', 'node_modules', '.bin', 'http-server'))) {
                 this.installHTTPServer();
             }
             for (let index = 9000; index < 10000; index++) {
@@ -31,12 +33,29 @@ class ChromeRunner {
                     break;
                 }
             }
-            child_process.exec(`node ./node_modules/.bin/http-server -c-1 -p${this.httpdPort}`);
+            child_process.exec(`node ${path.resolve('./', 'node_modules', '.bin', 'http-server')} -c-1 -p${this.httpdPort}`);
         });
     }
     installHTTPServer() {
         console.log("Installing http-server...");
         child_process.execSync('npm i http-server', { cwd: './' });
+    }
+    generateQRCode() {
+        if (!fs.existsSync(path.resolve('./', 'node_modules', 'qrcode-terminal'))) {
+            this.installQRCodeGenerator();
+        }
+        const qrcode = require(path.resolve('./', 'node_modules', 'qrcode-terminal', 'lib', 'main'));
+        utils_1.getLocalNetworkIPs().forEach(ip => {
+            qrcode.generate(`http://${ip}:${this.httpdPort}/platform/web/?debug`, { small: true }, function (qrcode) {
+                console.log("\n\n ====== \n IP >>> " + ip);
+                console.log(qrcode);
+                console.log("======");
+            });
+        });
+    }
+    installQRCodeGenerator() {
+        console.log("Installing qrcode-terminal...");
+        child_process.execSync('npm i qrcode-terminal', { cwd: './' });
     }
     checkPort(port) {
         return new Promise((res) => {
@@ -52,4 +71,4 @@ class ChromeRunner {
         });
     }
 }
-exports.ChromeRunner = ChromeRunner;
+exports.QRCodeRunner = QRCodeRunner;

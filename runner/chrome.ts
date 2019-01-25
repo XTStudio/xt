@@ -27,7 +27,7 @@ export class ChromeRunner {
 
     private installHTTPServer() {
         console.log("Installing http-server...")
-        child_process.execSync('npm i http-server --no-save', { cwd: './' })
+        child_process.execSync('npm i http-server', { cwd: './' })
     }
 
     private checkPort(port: number): Promise<boolean> {

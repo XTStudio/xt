@@ -81,7 +81,7 @@ export class iOSRunner {
     private installModules() {
         if (!fs.existsSync('./node_modules/.bin/ios-sim')) {
             console.log("Installing ios-sim...")
-            child_process.execSync('npm i ios-sim --no-save', { cwd: './', stdio: "inherit" })
+            child_process.execSync('npm i ios-sim', { cwd: './', stdio: "inherit" })
         }
     }
 

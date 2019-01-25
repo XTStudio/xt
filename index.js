@@ -12,6 +12,7 @@ const { Packager } = require('./cli/packager')
 const { ChromeRunner } = require('./runner/chrome')
 const { iOSRunner } = require('./runner/ios')
 const { AndroidRunner } = require('./runner/android')
+const { QRCodeRunner } = require('./runner/qrcode')
 
 program
     .version(JSON.parse(fs.readFileSync(__dirname + "/package.json", { encoding: "utf-8" })).version)
@@ -30,6 +31,9 @@ program
 const runClient = () => {
     if (program.run === "chrome") {
         new ChromeRunner().run()
+    }
+    else if (program.run === "qrcode") {
+        new QRCodeRunner().run()
     }
     else if (program.run === "ios") {
         const runner = new iOSRunner()
