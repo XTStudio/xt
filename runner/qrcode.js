@@ -46,10 +46,11 @@ class QRCodeRunner {
         }
         const qrcode = require(path.resolve('./', 'node_modules', 'qrcode-terminal', 'lib', 'main'));
         utils_1.getLocalNetworkIPs().forEach(ip => {
-            qrcode.generate(`http://${ip}:${this.httpdPort}/platform/web/?debug`, { small: true }, function (qrcode) {
-                console.log("\n\n ====== \n IP >>> " + ip);
+            qrcode.generate(`http://${ip}:${this.httpdPort}/platform/web/?debug`, { small: true }, (qrcode) => {
+                console.log(`====== QRCode Generator >>> ${ip} ======`);
+                console.log(`====== Content >>> ${`http://${ip}:${this.httpdPort}/platform/web/?debug`}`);
                 console.log(qrcode);
-                console.log("======");
+                console.log("====== QRCode End ======");
             });
         });
     }

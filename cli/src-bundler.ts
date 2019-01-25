@@ -231,7 +231,7 @@ export class SrcBundler {
         http.createServer((request, response) => {
             response.setHeader("Access-Control-Allow-Origin", "*")
             response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-            response.setHeader('Access-Control-Allow-Headers', '*');
+            response.setHeader('Access-Control-Allow-Headers', '*,code-version');
             if (request.method === "OPTIONS") {
                 response.statusCode = 200
                 return response.end()
@@ -281,7 +281,6 @@ export class SrcBundler {
 
     setupTinyDebugger() {
         const tinyDebugger = new TinyDebugger()
-        tinyDebugger.setBreakpoint("src/Usss sss/e.ts:2")
         tinyDebugger.on("client.paused", (client: any, params: any) => {
             if (client && params && params.uri) {
                 console.log(`[Tiny-Debugger] Break on ${params.uri}`)
