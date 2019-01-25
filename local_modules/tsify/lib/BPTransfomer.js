@@ -34,7 +34,10 @@ function transformStatements(node, sourceFile) {
             )
             newStatements.push(stepStatement)
         }
-        newStatements.push(it)
+        if (ts.isDebuggerStatement(it)) { }
+        else {
+            newStatements.push(it)
+        }
         if (ts.isVariableStatement(it)) {
             it.declarationList.declarations.forEach(it => {
                 declaredVariables.push(it)
