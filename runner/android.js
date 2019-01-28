@@ -11,7 +11,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require('fs');
 const xml2js = require('xml2js');
 const child_process = require('child_process');
-const utils_1 = require("./utils");
 class AndroidRunner {
     constructor() {
         this.packageName = "";
@@ -22,8 +21,18 @@ class AndroidRunner {
             try {
                 yield this.checkAndroidSDK();
                 yield this.parseManifest();
-                yield this.checkAdb();
-                yield this.checkDevice();
+                try {
+                    yield this.checkDevice();
+                }
+                catch (error) {
+                    if (error.message === "No devices connected.") {
+                        yield this.startDevice();
+                    }
+                    else {
+                        throw error;
+                    }
+                }
+                yield this.forwarkPorts();
                 yield this.gradleBuild();
                 yield this.runMainActivity();
             }
@@ -79,41 +88,82 @@ class AndroidRunner {
             });
         });
     }
-    checkAdb() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield utils_1.cmdExists('adb');
-            }
-            catch (error) {
-                throw Error("Please install Android Studio first. Then install Android SDK.");
-            }
-        });
-    }
     checkDevice() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((res, rej) => {
-                const process = child_process.exec(`adb devices`);
+                const process = child_process.exec(`$ANDROID_HOME/platform-tools/adb devices`);
                 process.stdout.on("data", (data) => {
                     const lines = data.replace("List of devices attached\n", "").split("\n");
                     const count = lines.filter((it) => it.indexOf("device") >= 0).length;
-                    if (count === 0) {
-                        rej(Error("Android device not found. Please connect a device via USB, or create and start an emulator via Android Studio."));
+                    if (count === 1) {
+                        res();
                     }
                     else if (count > 1) {
                         rej(Error("There are more than one device connected, please disconnect until just one."));
                     }
                     else {
-                        res();
+                        rej(Error("No devices connected."));
                     }
                 });
             });
         });
     }
+    startDevice() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((res, rej) => {
+                const process = child_process.exec(`$ANDROID_HOME/emulator/emulator -list-avds`);
+                let target = undefined;
+                process.stdout.on("data", (data) => {
+                    data.toString().split("\n").forEach((it) => {
+                        if (it.trim().length > 0) {
+                            target = it.trim();
+                        }
+                    });
+                });
+                process.on("close", () => {
+                    if (target) {
+                        child_process.exec(`$ANDROID_HOME/emulator/emulator -avd ${target}`);
+                        this.waitingDevice(res, rej);
+                    }
+                    else {
+                        rej("Emulator not found, create at least one device via Android Studio please.");
+                    }
+                });
+            });
+        });
+    }
+    waitingDevice(resolver, rejector, retryTime = 0) {
+        if (retryTime >= 10) {
+            rejector(Error("Emulator start failed."));
+            return;
+        }
+        console.log("Waiting device to connect.");
+        const process = child_process.exec(`$ANDROID_HOME/platform-tools/adb devices`);
+        process.stdout.on("data", (data) => {
+            const lines = data.replace("List of devices attached\n", "").split("\n");
+            const count = lines.filter((it) => it.indexOf("device") >= 0).length;
+            if (count === 1) {
+                resolver();
+            }
+            else if (count > 1) {
+                resolver();
+            }
+            else {
+                setTimeout(() => {
+                    this.waitingDevice(resolver, rejector, retryTime + 1);
+                }, 2000);
+            }
+        });
+    }
+    forwarkPorts() {
+        child_process.execSync(`$ANDROID_HOME/platform-tools/adb reverse tcp:8090 tcp:8090`);
+        child_process.execSync(`$ANDROID_HOME/platform-tools/adb reverse tcp:8091 tcp:8091`);
+    }
     gradleBuild() {
         console.log("Runing gradle build ...");
         return new Promise((res, rej) => {
             try {
-                child_process.execSync(`adb shell am force-stop ${this.packageName}`, { cwd: './platform/android/', stdio: "inherit" });
+                child_process.execSync(`$ANDROID_HOME/platform-tools/adb shell am force-stop ${this.packageName}`, { cwd: './platform/android/', stdio: "inherit" });
                 child_process.execSync(`sh ./gradlew installDebug`, { cwd: './platform/android/', stdio: "inherit" });
                 res();
             }
@@ -124,7 +174,7 @@ class AndroidRunner {
     }
     runMainActivity() {
         return __awaiter(this, void 0, void 0, function* () {
-            child_process.execSync(`adb shell am start -n ${this.packageName}/${this.mainActivityName}`, { cwd: './platform/android/', stdio: "inherit" });
+            child_process.execSync(`$ANDROID_HOME/platform-tools/adb shell am start -n ${this.packageName}/${this.mainActivityName}`, { cwd: './platform/android/', stdio: "inherit" });
         });
     }
 }
