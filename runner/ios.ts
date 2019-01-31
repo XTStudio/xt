@@ -21,13 +21,23 @@ export class iOSRunner {
         try {
             this.checkCurrentOS()
             await this.checkXcode()
-            await this.parseXcodeInfo()
-            console.log(`Current enviorment, platform = ${this.platform}, device = ${this.device}, os = ${this.os}`)
-            await this.checkCocoaPods()
-            this.installModules()
-            await this.podinstall()
-            await this.xcodebuild()
-            this.runSimulator()
+            if (this.platform === "iPhone") {
+                console.log(`Current enviorment, platform = ${this.platform}`)
+                await this.checkCocoaPods()
+                this.installModules(true)
+                await this.podinstall()
+                await this.xcodebuild(true)
+                this.runIPhone()
+            }
+            else {
+                await this.parseXcodeInfo()
+                console.log(`Current enviorment, platform = ${this.platform}, device = ${this.device}, os = ${this.os}`)
+                await this.checkCocoaPods()
+                this.installModules()
+                await this.podinstall()
+                await this.xcodebuild()
+                this.runSimulator()
+            }
         } catch (error) {
             console.error(error.message)
         }
@@ -78,8 +88,11 @@ export class iOSRunner {
         }
     }
 
-    private installModules() {
-        if (!fs.existsSync('./node_modules/.bin/ios-sim')) {
+    private installModules(isPhone: boolean = false) {
+        if (isPhone && !fs.existsSync('./node_modules/.bin/ios-deploy')) {
+            child_process.execSync('npm install ios-deploy', { cwd: './', stdio: "inherit" })
+        }
+        if (!isPhone && !fs.existsSync('./node_modules/.bin/ios-sim')) {
             console.log("Installing ios-sim...")
             child_process.execSync('npm i ios-sim', { cwd: './', stdio: "inherit" })
         }
@@ -97,11 +110,16 @@ export class iOSRunner {
         })
     }
 
-    private xcodebuild(): Promise<any> {
+    private xcodebuild(isPhone: boolean = false): Promise<any> {
         console.log("Runing xcodebuild ...")
         return new Promise((res, rej) => {
             try {
-                child_process.execSync(`xcrun xcodebuild -scheme ${this.projectName} -workspace ${this.projectName}.xcworkspace -configuration Debug -destination 'platform=${this.platform},name=${this.device},OS=${this.os}' -derivedDataPath build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO`, { cwd: './platform/ios/', stdio: "inherit" })
+                if (isPhone) {
+                    child_process.execSync(`xcrun xcodebuild -scheme ${this.projectName} -workspace ${this.projectName}.xcworkspace -configuration Debug -sdk iphoneos -derivedDataPath build`, { cwd: './platform/ios/', stdio: "inherit" })
+                }
+                else {
+                    child_process.execSync(`xcrun xcodebuild -scheme ${this.projectName} -workspace ${this.projectName}.xcworkspace -configuration Debug -destination 'platform=${this.platform},name=${this.device},OS=${this.os}' -derivedDataPath build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO`, { cwd: './platform/ios/', stdio: "inherit" })
+                }
                 res()
             } catch (error) {
                 rej(error)
@@ -112,6 +130,11 @@ export class iOSRunner {
     private runSimulator() {
         console.log("Runing on iOS Simulator...")
         child_process.exec(`node ${path.resolve('./node_modules/.bin/ios-sim')} launch ${this.projectName}.app --devicetypeid "${this.device.replace(/ /ig, '-')}, ${this.os}"`, { cwd: `./platform/ios/build/Build/Products/Debug-iphonesimulator` })
+    }
+
+    private runIPhone() {
+        console.log("Runing on iPhone...")
+        child_process.exec(`${path.resolve('./node_modules/.bin/ios-deploy')} -L -b ${this.projectName}.app`, { cwd: `./platform/ios/build/Build/Products/Debug-iphoneos` })
     }
 
 }

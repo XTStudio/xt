@@ -15,6 +15,7 @@
     "license": "ISC",
     "dependencies": {
         "http-server": "^0.11.1",
+        "ios-deploy": "^1.9.4",
         "tiny-debugger": "git+https://github.com/XTStudio/tiny-debugger.git",
         "xml2js": "^0.4.19"
     }
