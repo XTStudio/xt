@@ -90,6 +90,27 @@ global.main = new MainViewController
                     "name": "Debug XT on iOS Simulator",
                     "platform": "ios",
                     "workspace": "\${workspaceFolder}"
+                },
+                {
+                    "type": "xt",
+                    "request": "launch",
+                    "name": "Debug XT on iOS Simulator",
+                    "platform": "ios",
+                    "workspace": "\${workspaceFolder}"
+                },
+                {
+                    "type": "xt",
+                    "request": "launch",
+                    "name": "Debug XT on iPhone",
+                    "platform": "iphone",
+                    "workspace": "\${workspaceFolder}"
+                },
+                {
+                    "type": "xt",
+                    "request": "launch",
+                    "name": "Debug XT via QRCode",
+                    "platform": "qrcode",
+                    "workspace": "\${workspaceFolder}"
                 }
             ]
         }
