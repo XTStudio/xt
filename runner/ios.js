@@ -145,6 +145,7 @@ class iOSRunner {
     }
     runIPhone() {
         console.log("Runing on iPhone...");
+        child_process.exec(`${path.resolve(__dirname, 'bin', 'URLTalk-Server')}`);
         child_process.exec(`${path.resolve('./node_modules/.bin/ios-deploy')} -L -b ${this.projectName}.app`, { cwd: `./platform/ios/build/Build/Products/Debug-iphoneos` });
     }
 }
