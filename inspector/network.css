@@ -1,0 +1,50 @@
+body {
+    background-color: rgb(30, 30, 30);
+    margin-left: 12px;
+    margin-top: 12px;
+    margin-right: 12px;
+}
+
+#listArea {
+    overflow: scroll;
+    height: 0px;
+}
+
+#listArea > table > tbody > tr > td,th {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
+}
+
+#infoArea {
+    position: absolute;
+    left: 212px;
+    right: 12px;
+    top: 60px;
+    bottom: 12px;
+    background-color: rgb(30, 30, 30);
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-left-color: rgb(50, 56, 62);
+}
+
+.singleLine {
+    max-width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.nav-link {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
+}

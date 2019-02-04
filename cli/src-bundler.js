@@ -5,6 +5,7 @@ const http = require("http");
 const path = require("path");
 const ts = require("typescript");
 const res_bundler_1 = require("./res-bundler");
+const network_monitor_1 = require("./network-monitor");
 const browserify = require('browserify');
 const watchify = require('watchify');
 const tsify = require('../local_modules/tsify');
@@ -22,6 +23,7 @@ class SrcBundler {
         this.builtCodes = {};
         this.reloadingCodes = {};
         this.versionResponsesHandler = [];
+        this.networkMonitor = new network_monitor_1.NetworkMonitor;
         if (isDebugging) {
             this.dist = "node_modules/.tmp/app.js";
         }
@@ -234,7 +236,8 @@ class SrcBundler {
         http.createServer((request, response) => {
             response.setHeader("Access-Control-Allow-Origin", "*");
             response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-            response.setHeader('Access-Control-Allow-Headers', '*,code-version');
+            response.setHeader('Access-Control-Allow-Headers', '*,code-version,ts-tag');
+            response.setHeader('Access-Control-Expose-Headers', '*,ts-tag');
             if (request.method === "OPTIONS") {
                 response.statusCode = 200;
                 return response.end();
@@ -271,6 +274,22 @@ class SrcBundler {
                 }
                 else if (request.url === "/livereload") {
                     response.end(fs.readFileSync("node_modules/.tmp/reload.js", { encoding: "utf-8" }));
+                }
+                else if (request.url && request.url.startsWith("/inspector/")) {
+                    const p = request.url.replace("/inspector/", "");
+                    fs.readFile(path.join(__dirname, "../", "inspector", p), (err, it) => {
+                        if (err) {
+                            response.statusCode = 404;
+                            response.end();
+                        }
+                        else {
+                            response.write(it);
+                            response.end();
+                        }
+                    });
+                }
+                else if (request.url && request.url.startsWith("/network/")) {
+                    this.networkMonitor.handleRequest(request, response);
                 }
                 else {
                     response.end("");

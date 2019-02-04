@@ -3,6 +3,7 @@ import * as http from "http";
 import * as path from "path";
 import * as ts from "typescript";
 import { ResBundler } from "./res-bundler";
+import { NetworkMonitor } from "./network-monitor";
 const browserify = require('browserify')
 const watchify = require('watchify')
 const tsify = require('../local_modules/tsify')
@@ -18,6 +19,7 @@ export class SrcBundler {
     private builtCodes: { [key: string]: string } = {}
     private reloadingCodes: { [key: string]: string } = {}
     private versionResponsesHandler: (() => void)[] = []
+    private networkMonitor = new NetworkMonitor
 
     constructor(private dist: string, private isWatching: boolean, private isDebugging: boolean = false) {
         if (isDebugging) {
@@ -231,7 +233,8 @@ export class SrcBundler {
         http.createServer((request, response) => {
             response.setHeader("Access-Control-Allow-Origin", "*")
             response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-            response.setHeader('Access-Control-Allow-Headers', '*,code-version');
+            response.setHeader('Access-Control-Allow-Headers', '*,code-version,ts-tag');
+            response.setHeader('Access-Control-Expose-Headers', '*,ts-tag');
             if (request.method === "OPTIONS") {
                 response.statusCode = 200
                 return response.end()
@@ -267,6 +270,22 @@ export class SrcBundler {
                 }
                 else if (request.url === "/livereload") {
                     response.end(fs.readFileSync("node_modules/.tmp/reload.js", { encoding: "utf-8" }))
+                }
+                else if (request.url && request.url.startsWith("/inspector/")) {
+                    const p = request.url.replace("/inspector/", "")
+                    fs.readFile(path.join(__dirname, "../", "inspector", p), (err, it) => {
+                        if (err) {
+                            response.statusCode = 404
+                            response.end()
+                        }
+                        else {
+                            response.write(it)
+                            response.end()
+                        }
+                    })
+                }
+                else if (request.url && request.url.startsWith("/network/")) {
+                    this.networkMonitor.handleRequest(request, response)
                 }
                 else {
                     response.end("")

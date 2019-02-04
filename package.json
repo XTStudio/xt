@@ -37,6 +37,7 @@
     "local_modules/**/*",
     "program/**/*",
     "runner/**/*",
+    "inspector/**/*",
     "types/**/*",
     "index.js",
     "LICENSE",
@@ -44,6 +45,7 @@
     "**/.gitignore"
   ],
   "devDependencies": {
-    "@types/node": "^10.12.18"
+    "@types/node": "^10.12.18",
+    "preact": "^8.4.2"
   }
 }

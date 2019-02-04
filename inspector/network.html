@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Network</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/bootstrap.min.css">
+    <link rel="stylesheet" href="network.css">
+
+</head>
+
+<body>
+    <script src="static/jquery-3.3.1.slim.min.js"></script>
+    <script src="static/popper.min.js"></script>
+    <script src="static/bootstrap.min.js"></script>
+    <script src="static/preact.min.js"></script>
+    <script src="network.js"></script>
+    <script>
+        window.addEventListener("resize", () => {
+            $('#listArea').height($('#areaRef').height() - 74)
+        })
+        window.dispatchEvent(new Event("resize"))
+    </script>
+</body>
+
+</html>

@@ -6,10 +6,13 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noImplicitThis": true,
-    "alwaysStrict": true
+    "alwaysStrict": true,
+    "jsx": "react",
+    "jsxFactory": "h"
   },
   "include": [
     "cli/**/*",
-    "runner/**/*"
+    "runner/**/*",
+    "inspector/**/*.tsx"
   ],
 }
