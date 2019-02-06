@@ -78,7 +78,7 @@
                         URLSession.shared.fetch(writeRequest);
                     }
                 }
-                callback(arguments);
+                callback(arguments[0], arguments[1], arguments[2]);
             }]);
         task.resume = function () {
             {
