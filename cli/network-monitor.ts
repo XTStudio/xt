@@ -36,24 +36,25 @@ export class NetworkMonitor {
 
     private connections: ConnectionItem[] = []
 
-    private listTasks: (() => void)[] = []
+    private listTasks: ((tsTag: number) => void)[] = []
 
     handleRequest(request: IncomingMessage, response: ServerResponse) {
         if (request.url) {
             if (request.url.startsWith("/network/reset")) {
+                const currentTs = new Date().getTime()
                 this.connections = [
-                    { uuid: "RESET", state: 0, updatedAt: new Date().getTime() }
+                    { uuid: "RESET", state: 0, updatedAt: currentTs }
                 ]
                 response.end()
-                this.listTasks.forEach(it => it())
+                this.listTasks.forEach(it => it(currentTs))
                 this.listTasks = []
             }
             else if (request.url.startsWith("/network/list")) {
                 if (request.headers["ts-tag"] !== undefined) {
                     const tsTag = request.headers["ts-tag"] as string
-                    this.listTasks.push(() => {
+                    this.listTasks.push((currentTs: number) => {
                         const tag = parseInt(tsTag)
-                        response.setHeader("ts-tag", new Date().getTime().toString())
+                        response.setHeader("ts-tag", currentTs.toString() || new Date().getTime().toString())
                         response.write(JSON.stringify(this.connections.filter(it => {
                             return it.updatedAt > tag
                         }).map(it => {
@@ -71,6 +72,7 @@ export class NetworkMonitor {
                 }
             }
             else if (request.url.startsWith("/network/write")) {
+                const currentTs = new Date().getTime()
                 let body = '';
                 request.on('data', chunk => {
                     body += chunk.toString();
@@ -78,7 +80,7 @@ export class NetworkMonitor {
                 request.on('end', () => {
                     try {
                         let connection = JSON.parse(body)
-                        connection.updatedAt = new Date().getTime()
+                        connection.updatedAt = currentTs
                         if (typeof connection.uuid === "string") {
                             let found = false
                             for (let index = 0; index < this.connections.length; index++) {
@@ -94,7 +96,7 @@ export class NetworkMonitor {
                         }
                     } catch (error) { }
                     response.end();
-                    this.listTasks.forEach(it => it())
+                    this.listTasks.forEach(it => it(currentTs))
                     this.listTasks = []
                 });
             }
