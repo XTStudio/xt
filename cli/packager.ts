@@ -35,8 +35,8 @@ export class Packager {
 
     debug(port: number) {
         try {
-            require('child_process').execSync(`kill $(lsof -t -i:${port})`)
-            require('child_process').execSync(`kill $(lsof -t -i:8091)`)
+            require('child_process').execSync(`lsof -n -i4TCP:${port} | grep LISTEN | awk '{ print $2 }' | xargs kill`)
+            require('child_process').execSync(`lsof -n -i4TCP:8091 | grep LISTEN | awk '{ print $2 }' | xargs kill`)
         } catch (error) { }
         this.srcBundler = new SrcBundler("", this.isWatching, true)
         this.srcBundler.setupTinyDebugger()
