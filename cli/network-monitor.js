@@ -16,7 +16,7 @@ class NetworkMonitor {
         if (request.url) {
             if (request.url.startsWith("/network/reset")) {
                 this.connections = [
-                    { uuid: "RESET", request: { ts: new Date().getTime() }, state: 0 }
+                    { uuid: "RESET", state: 0, updatedAt: new Date().getTime() }
                 ];
                 response.end();
                 this.listTasks.forEach(it => it());
@@ -29,15 +29,7 @@ class NetworkMonitor {
                         const tag = parseInt(tsTag);
                         response.setHeader("ts-tag", new Date().getTime().toString());
                         response.write(JSON.stringify(this.connections.filter(it => {
-                            if (it.request && it.request.ts > tag) {
-                                return true;
-                            }
-                            else if (it.response && it.response.ts > tag) {
-                                return true;
-                            }
-                            else {
-                                return false;
-                            }
+                            return it.updatedAt > tag;
                         }).map(it => {
                             return { uuid: it.uuid, request: Object.assign({}, (it.request || {}), { headers: undefined }), response: Object.assign({}, (it.response || {}), { headers: undefined, body: undefined }), state: it.state };
                         })));
@@ -60,12 +52,7 @@ class NetworkMonitor {
                 request.on('end', () => {
                     try {
                         let connection = JSON.parse(body);
-                        if (connection.request) {
-                            connection.request.ts = new Date().getTime();
-                        }
-                        if (connection.response) {
-                            connection.response.ts = new Date().getTime();
-                        }
+                        connection.updatedAt = new Date().getTime();
                         if (typeof connection.uuid === "string") {
                             let found = false;
                             for (let index = 0; index < this.connections.length; index++) {

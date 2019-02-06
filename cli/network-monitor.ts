@@ -15,7 +15,8 @@ interface ConnectionItem {
         method?: string,
         url?: string,
         headers?: { [key: string]: string },
-        ts: number,
+        body?: string,
+        ts?: number,
     }
 
     response?: {
@@ -23,10 +24,11 @@ interface ConnectionItem {
         headers: { [key: string]: string },
         body?: string,
         bodySize: number,
-        ts: number,
+        ts?: number,
     }
 
     state: ConnectionState,
+    updatedAt: number,
 
 }
 
@@ -40,7 +42,7 @@ export class NetworkMonitor {
         if (request.url) {
             if (request.url.startsWith("/network/reset")) {
                 this.connections = [
-                    { uuid: "RESET", request: { ts: new Date().getTime() }, state: 0 }
+                    { uuid: "RESET", state: 0, updatedAt: new Date().getTime() }
                 ]
                 response.end()
                 this.listTasks.forEach(it => it())
@@ -53,15 +55,7 @@ export class NetworkMonitor {
                         const tag = parseInt(tsTag)
                         response.setHeader("ts-tag", new Date().getTime().toString())
                         response.write(JSON.stringify(this.connections.filter(it => {
-                            if (it.request && it.request.ts > tag) {
-                                return true
-                            }
-                            else if (it.response && it.response.ts > tag) {
-                                return true
-                            }
-                            else {
-                                return false
-                            }
+                            return it.updatedAt > tag
                         }).map(it => {
                             return { uuid: it.uuid, request: { ...(it.request || {}), headers: undefined }, response: { ...(it.response || {}), headers: undefined, body: undefined }, state: it.state }
                         })))
@@ -84,12 +78,7 @@ export class NetworkMonitor {
                 request.on('end', () => {
                     try {
                         let connection = JSON.parse(body)
-                        if (connection.request) {
-                            connection.request.ts = new Date().getTime()
-                        }
-                        if (connection.response) {
-                            connection.response.ts = new Date().getTime()
-                        }
+                        connection.updatedAt = new Date().getTime()
                         if (typeof connection.uuid === "string") {
                             let found = false
                             for (let index = 0; index < this.connections.length; index++) {

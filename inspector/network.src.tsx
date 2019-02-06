@@ -15,6 +15,7 @@ interface ConnectionItem {
         method?: string,
         url?: string,
         headers?: { [key: string]: string },
+        body?: string,
         ts: number,
     }
 
@@ -311,22 +312,40 @@ class InfoHeaderView extends Component<{ itemForInfoView: ConnectionItem | undef
                             State: {ListView.renderConnectionState(this.props.itemForInfoView.state)}<br />
                         </p>
                     </div>
-                    {this.props.itemForInfoView.request && this.props.itemForInfoView.request.headers ? (
+                    {this.props.itemForInfoView.request && this.props.itemForInfoView.request.headers && Object.keys(this.props.itemForInfoView.request.headers).length > 0 ? (
                         <div class="card-body">
                             <h5 class="card-title text-white">Request Headers</h5>
                             <p class="card-text text-white">
                                 {Object.keys(this.props.itemForInfoView.request.headers).map(headerKey => {
-                                    return `${headerKey}: ${this.props.itemForInfoView!!.request!!.headers!![headerKey]}`
+                                    return (
+                                        <div>
+                                            {headerKey}: {this.props.itemForInfoView!!.request!!.headers!![headerKey]}
+                                            <br />
+                                        </div>
+                                    )
                                 })}
                             </p>
                         </div>
                     ) : null}
-                    {this.props.itemForInfoView.response && this.props.itemForInfoView.response.headers ? (
+                    {this.props.itemForInfoView.request && this.props.itemForInfoView.request.body ? (
                         <div class="card-body">
-                            <h5 class="card-title xtext-white">Response Headers</h5>
+                            <h5 class="card-title text-white">Request Body</h5>
+                            <p class="card-text text-white">
+                                {atob(this.props.itemForInfoView.request.body)}
+                            </p>
+                        </div>
+                    ) : null}
+                    {this.props.itemForInfoView.response && this.props.itemForInfoView.response.headers && Object.keys(this.props.itemForInfoView.response.headers).length > 0 ? (
+                        <div class="card-body">
+                            <h5 class="card-title text-white">Response Headers</h5>
                             <p class="card-text text-white">
                                 {Object.keys(this.props.itemForInfoView.response.headers).map(headerKey => {
-                                    return `${headerKey}: ${this.props.itemForInfoView!!.response!!.headers!![headerKey]}`
+                                    return (
+                                        <div>
+                                            {headerKey}: {this.props.itemForInfoView!!.response!!.headers!![headerKey]}
+                                            <br />
+                                        </div>
+                                    )
                                 })}
                             </p>
                         </div>

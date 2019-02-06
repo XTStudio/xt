@@ -110,7 +110,7 @@ export class AndroidRunner {
             })
             process.on("close", () => {
                 if (target) {
-                    child_process.exec(`$ANDROID_HOME/emulator/emulator -avd ${target}`)
+                    child_process.exec(`$ANDROID_HOME/emulator/emulator -avd ${target} -dns-server 223.5.5.5`)
                     this.waitingDevice(res, rej)
                 }
                 else {
@@ -121,16 +121,32 @@ export class AndroidRunner {
     }
 
     private waitingDevice(resolver: () => void, rejector: (error: Error) => void, retryTime: number = 0) {
-        if (retryTime >= 10) { rejector(Error("Emulator start failed.")); return }
+        if (retryTime >= 30) { rejector(Error("Emulator start failed.")); return }
         console.log("Waiting device to connect.")
         const process = child_process.exec(`$ANDROID_HOME/platform-tools/adb devices`)
         process.stdout.on("data", (data: any) => {
             const lines = data.replace("List of devices attached\n", "").split("\n")
             const count = lines.filter((it: string) => it.indexOf("device") >= 0).length
             if (count === 1) {
+                try {
+                    child_process.execSync(`$ANDROID_HOME/platform-tools/adb shell am force-stop ${this.packageName}`, { cwd: './platform/android/', stdio: "inherit" })
+                } catch (error) {
+                    setTimeout(() => {
+                        this.waitingDevice(resolver, rejector, retryTime + 1)
+                    }, 2000)
+                    return
+                }
                 resolver()
             }
             else if (count > 1) {
+                try {
+                    child_process.execSync(`$ANDROID_HOME/platform-tools/adb shell am force-stop ${this.packageName}`, { cwd: './platform/android/', stdio: "inherit" })
+                } catch (error) {
+                    setTimeout(() => {
+                        this.waitingDevice(resolver, rejector, retryTime + 1)
+                    }, 2000)
+                    return
+                }
                 resolver()
             }
             else {

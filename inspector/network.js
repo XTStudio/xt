@@ -259,15 +259,26 @@ class InfoHeaderView extends preact_1.Component {
                         "State: ",
                         ListView.renderConnectionState(this.props.itemForInfoView.state),
                         preact_1.h("br", null))),
-                this.props.itemForInfoView.request && this.props.itemForInfoView.request.headers ? (preact_1.h("div", { class: "card-body" },
+                this.props.itemForInfoView.request && this.props.itemForInfoView.request.headers && Object.keys(this.props.itemForInfoView.request.headers).length > 0 ? (preact_1.h("div", { class: "card-body" },
                     preact_1.h("h5", { class: "card-title text-white" }, "Request Headers"),
                     preact_1.h("p", { class: "card-text text-white" }, Object.keys(this.props.itemForInfoView.request.headers).map(headerKey => {
-                        return `${headerKey}: ${this.props.itemForInfoView.request.headers[headerKey]}`;
+                        return (preact_1.h("div", null,
+                            headerKey,
+                            ": ",
+                            this.props.itemForInfoView.request.headers[headerKey],
+                            preact_1.h("br", null)));
                     })))) : null,
-                this.props.itemForInfoView.response && this.props.itemForInfoView.response.headers ? (preact_1.h("div", { class: "card-body" },
-                    preact_1.h("h5", { class: "card-title xtext-white" }, "Response Headers"),
+                this.props.itemForInfoView.request && this.props.itemForInfoView.request.body ? (preact_1.h("div", { class: "card-body" },
+                    preact_1.h("h5", { class: "card-title text-white" }, "Request Body"),
+                    preact_1.h("p", { class: "card-text text-white" }, atob(this.props.itemForInfoView.request.body)))) : null,
+                this.props.itemForInfoView.response && this.props.itemForInfoView.response.headers && Object.keys(this.props.itemForInfoView.response.headers).length > 0 ? (preact_1.h("div", { class: "card-body" },
+                    preact_1.h("h5", { class: "card-title text-white" }, "Response Headers"),
                     preact_1.h("p", { class: "card-text text-white" }, Object.keys(this.props.itemForInfoView.response.headers).map(headerKey => {
-                        return `${headerKey}: ${this.props.itemForInfoView.response.headers[headerKey]}`;
+                        return (preact_1.h("div", null,
+                            headerKey,
+                            ": ",
+                            this.props.itemForInfoView.response.headers[headerKey],
+                            preact_1.h("br", null)));
                     })))) : null)));
     }
 }
