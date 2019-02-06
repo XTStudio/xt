@@ -36,7 +36,7 @@ export class NetworkMonitor {
 
     private connections: ConnectionItem[] = []
 
-    private listTasks: ((tsTag: number) => void)[] = []
+    private listTasks: ((tsTag?: number) => void)[] = []
 
     handleRequest(request: IncomingMessage, response: ServerResponse) {
         if (request.url) {
@@ -52,9 +52,9 @@ export class NetworkMonitor {
             else if (request.url.startsWith("/network/list")) {
                 if (request.headers["ts-tag"] !== undefined) {
                     const tsTag = request.headers["ts-tag"] as string
-                    this.listTasks.push((currentTs: number) => {
+                    this.listTasks.push((currentTs?: number) => {
                         const tag = parseInt(tsTag)
-                        response.setHeader("ts-tag", currentTs.toString() || new Date().getTime().toString())
+                        response.setHeader("ts-tag", currentTs ? currentTs.toString() : new Date().getTime().toString())
                         response.write(JSON.stringify(this.connections.filter(it => {
                             return it.updatedAt > tag
                         }).map(it => {
@@ -62,6 +62,10 @@ export class NetworkMonitor {
                         })))
                         response.end()
                     })
+                    const tag = parseInt(tsTag)
+                    if (!this.connections.every(it => it.updatedAt <= tag)) {
+                        this.listTasks.forEach(it => it())
+                    }
                 }
                 else {
                     response.setHeader("ts-tag", new Date().getTime().toString())

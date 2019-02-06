@@ -28,7 +28,7 @@ class NetworkMonitor {
                     const tsTag = request.headers["ts-tag"];
                     this.listTasks.push((currentTs) => {
                         const tag = parseInt(tsTag);
-                        response.setHeader("ts-tag", currentTs.toString() || new Date().getTime().toString());
+                        response.setHeader("ts-tag", currentTs ? currentTs.toString() : new Date().getTime().toString());
                         response.write(JSON.stringify(this.connections.filter(it => {
                             return it.updatedAt > tag;
                         }).map(it => {
@@ -36,6 +36,10 @@ class NetworkMonitor {
                         })));
                         response.end();
                     });
+                    const tag = parseInt(tsTag);
+                    if (!this.connections.every(it => it.updatedAt <= tag)) {
+                        this.listTasks.forEach(it => it());
+                    }
                 }
                 else {
                     response.setHeader("ts-tag", new Date().getTime().toString());
