@@ -65,6 +65,7 @@ export class NetworkMonitor {
                     const tag = parseInt(tsTag)
                     if (!this.connections.every(it => it.updatedAt <= tag)) {
                         this.listTasks.forEach(it => it())
+                        this.listTasks = []
                     }
                 }
                 else {
