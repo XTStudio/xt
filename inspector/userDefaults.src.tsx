@@ -1,4 +1,5 @@
 import { h, render, Component } from "preact";
+declare var $: any
 
 interface DataItem {
     dataKey: string
@@ -149,7 +150,7 @@ class SuiteBar extends Component<{ onChange: (text: string) => void, onRefresh: 
 
 }
 
-class ListView extends Component<{ items: DataItem[], onDeleteItem: (item: DataItem) => void, onEditItem: (item: DataItem, isNewRow: boolean) => void }, any> {
+class ListView extends Component<{ items: DataItem[], onDeleteItem: (item: DataItem) => void, onEditItem: (item: DataItem, isNewRow: boolean) => void }, { editingItem: DataItem | undefined, isNewRowWhileEditing: boolean }> {
 
     renderRow(row: DataItem) {
         return (
@@ -159,11 +160,11 @@ class ListView extends Component<{ items: DataItem[], onDeleteItem: (item: DataI
                 <td style="width: 25%; line-height: 30px">{row.dataType}</td>
                 <td style="width: 25%">
                     <button type="button" class="btn btn-secondary btn-sm" style="transform: scale(0.8,0.8);" onClick={() => {
-                        const newValue = prompt(row.dataKey, typeof row.dataValue === "object" ? JSON.stringify(row.dataValue) : String(row.dataValue))
-                        if (typeof newValue === "string") {
-                            row.dataValue = newValue
-                            this.props.onEditItem(row, false)
-                        }
+                        this.setState({
+                            editingItem: row,
+                            isNewRowWhileEditing: false,
+                        })
+                        $('#rowEditor').modal('show')
                     }}>Edit</button>
                     <button type="button" class="btn btn-warning btn-sm" style="transform: scale(0.8,0.8);" onClick={() => {
                         this.props.onDeleteItem(row)
@@ -190,24 +191,89 @@ class ListView extends Component<{ items: DataItem[], onDeleteItem: (item: DataI
                         <tr>
                             <th colSpan={4} style="text-align: center">
                                 <button type="button" class="btn btn-success btn-sm" style="transform: scale(0.8,0.8);" onClick={() => {
-                                    const rowKey = prompt("Key", "")
-                                    if (rowKey === null) { return }
-                                    const rowValue = prompt("Value", "")
-                                    if (rowValue === null) { return }
-                                    const rowType = prompt("Type, one of [string, number, boolean, object]", "string")
-                                    if (rowType === null) { return }
-                                    if (typeof rowKey === "string" && typeof rowValue === "string" && typeof rowType === "string") {
-                                        this.props.onEditItem({
-                                            dataKey: rowKey,
-                                            dataValue: rowValue,
-                                            dataType: rowType,
-                                        }, true)
-                                    }
+                                    this.setState({
+                                        editingItem: undefined,
+                                        isNewRowWhileEditing: true,
+                                    })
+                                    $('#rowEditor').modal('show')
                                 }}>New Row</button>
                             </th>
                         </tr>
                     </tbody>
                 </table>
+                <RowEditor isNewRow={this.state.isNewRowWhileEditing} dataItem={this.state.editingItem} onSave={(it) => {
+                    this.props.onEditItem(it, this.state.isNewRowWhileEditing)
+                    $('#rowEditor').modal('hide')
+                }} />
+            </div>
+        )
+    }
+
+}
+
+class RowEditor extends Component<{ isNewRow: boolean, dataItem: DataItem | undefined, onSave: (newItem: DataItem) => void }> {
+
+    render() {
+        return (
+            <div class="modal fade" id="rowEditor" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">{this.props.isNewRow ? "New" : "Edit"}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Key</label>
+                                    <div class="col-sm-10">
+                                        <input class="form-control" id="editorDataKey" placeholder="" value={this.props.dataItem ? this.props.dataItem.dataKey : ''} readOnly={this.props.isNewRow ? false : true} />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Value</label>
+                                    <div class="col-sm-10">
+                                        <input class="form-control" id="editorDataValue" placeholder="" value={this.props.dataItem ? this.props.dataItem.dataValue : ''} />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-2 col-form-label">Type</label>
+                                    <div class="col-sm-10" style="padding-top: 7px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="typeString" value="string" checked={this.props.dataItem && this.props.dataItem.dataType === "string"} />
+                                            <label class="form-check-label" for="typeString">String</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="typeNumber" value="number" checked={this.props.dataItem && this.props.dataItem.dataType === "number"} />
+                                            <label class="form-check-label" for="typeNumber">Number</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="typeBoolean" value="boolean" checked={this.props.dataItem && this.props.dataItem.dataType === "boolean"} />
+                                            <label class="form-check-label" for="typeBoolean">Boolean</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="typeObject" value="object" checked={this.props.dataItem && this.props.dataItem.dataType === "object"} />
+                                            <label class="form-check-label" for="typeObject">Object</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onClick={() => {
+                                this.props.onSave({
+                                    dataKey: $('#editorDataKey').val(),
+                                    dataValue: $('#editorDataValue').val(),
+                                    dataType: $('input[name=inlineRadioOptions]:checked').val(),
+                                })
+                            }}>Save</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         )
     }

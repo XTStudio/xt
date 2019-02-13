@@ -127,11 +127,11 @@ class ListView extends preact_1.Component {
             preact_1.h("td", { style: "width: 25%; line-height: 30px" }, row.dataType),
             preact_1.h("td", { style: "width: 25%" },
                 preact_1.h("button", { type: "button", class: "btn btn-secondary btn-sm", style: "transform: scale(0.8,0.8);", onClick: () => {
-                        const newValue = prompt(row.dataKey, typeof row.dataValue === "object" ? JSON.stringify(row.dataValue) : String(row.dataValue));
-                        if (typeof newValue === "string") {
-                            row.dataValue = newValue;
-                            this.props.onEditItem(row, false);
-                        }
+                        this.setState({
+                            editingItem: row,
+                            isNewRowWhileEditing: false,
+                        });
+                        $('#rowEditor').modal('show');
                     } }, "Edit"),
                 preact_1.h("button", { type: "button", class: "btn btn-warning btn-sm", style: "transform: scale(0.8,0.8);", onClick: () => {
                         this.props.onDeleteItem(row);
@@ -151,26 +151,61 @@ class ListView extends preact_1.Component {
                     preact_1.h("tr", null,
                         preact_1.h("th", { colSpan: 4, style: "text-align: center" },
                             preact_1.h("button", { type: "button", class: "btn btn-success btn-sm", style: "transform: scale(0.8,0.8);", onClick: () => {
-                                    const rowKey = prompt("Key", "");
-                                    if (rowKey === null) {
-                                        return;
-                                    }
-                                    const rowValue = prompt("Value", "");
-                                    if (rowValue === null) {
-                                        return;
-                                    }
-                                    const rowType = prompt("Type, one of [string, number, boolean, object]", "string");
-                                    if (rowType === null) {
-                                        return;
-                                    }
-                                    if (typeof rowKey === "string" && typeof rowValue === "string" && typeof rowType === "string") {
-                                        this.props.onEditItem({
-                                            dataKey: rowKey,
-                                            dataValue: rowValue,
-                                            dataType: rowType,
-                                        }, true);
-                                    }
-                                } }, "New Row")))))));
+                                    this.setState({
+                                        editingItem: undefined,
+                                        isNewRowWhileEditing: true,
+                                    });
+                                    $('#rowEditor').modal('show');
+                                } }, "New Row"))))),
+            preact_1.h(RowEditor, { isNewRow: this.state.isNewRowWhileEditing, dataItem: this.state.editingItem, onSave: (it) => {
+                    this.props.onEditItem(it, this.state.isNewRowWhileEditing);
+                    $('#rowEditor').modal('hide');
+                } })));
+    }
+}
+class RowEditor extends preact_1.Component {
+    render() {
+        return (preact_1.h("div", { class: "modal fade", id: "rowEditor", role: "dialog", "aria-labelledby": "exampleModalLabel", "aria-hidden": "true" },
+            preact_1.h("div", { class: "modal-dialog", role: "document" },
+                preact_1.h("div", { class: "modal-content" },
+                    preact_1.h("div", { class: "modal-header" },
+                        preact_1.h("h5", { class: "modal-title", id: "exampleModalLabel" }, this.props.isNewRow ? "New" : "Edit"),
+                        preact_1.h("button", { type: "button", class: "close", "data-dismiss": "modal", "aria-label": "Close" },
+                            preact_1.h("span", { "aria-hidden": "true" }, "\u00D7"))),
+                    preact_1.h("div", { class: "modal-body" },
+                        preact_1.h("form", null,
+                            preact_1.h("div", { class: "form-group row" },
+                                preact_1.h("label", { for: "inputEmail3", class: "col-sm-2 col-form-label" }, "Key"),
+                                preact_1.h("div", { class: "col-sm-10" },
+                                    preact_1.h("input", { class: "form-control", id: "editorDataKey", placeholder: "", value: this.props.dataItem ? this.props.dataItem.dataKey : '', readOnly: this.props.isNewRow ? false : true }))),
+                            preact_1.h("div", { class: "form-group row" },
+                                preact_1.h("label", { for: "inputEmail3", class: "col-sm-2 col-form-label" }, "Value"),
+                                preact_1.h("div", { class: "col-sm-10" },
+                                    preact_1.h("input", { class: "form-control", id: "editorDataValue", placeholder: "", value: this.props.dataItem ? this.props.dataItem.dataValue : '' }))),
+                            preact_1.h("div", { class: "form-group row" },
+                                preact_1.h("label", { for: "inputEmail3", class: "col-sm-2 col-form-label" }, "Type"),
+                                preact_1.h("div", { class: "col-sm-10", style: "padding-top: 7px;" },
+                                    preact_1.h("div", { class: "form-check form-check-inline" },
+                                        preact_1.h("input", { class: "form-check-input", type: "radio", name: "inlineRadioOptions", id: "typeString", value: "string", checked: this.props.dataItem && this.props.dataItem.dataType === "string" }),
+                                        preact_1.h("label", { class: "form-check-label", for: "typeString" }, "String")),
+                                    preact_1.h("div", { class: "form-check form-check-inline" },
+                                        preact_1.h("input", { class: "form-check-input", type: "radio", name: "inlineRadioOptions", id: "typeNumber", value: "number", checked: this.props.dataItem && this.props.dataItem.dataType === "number" }),
+                                        preact_1.h("label", { class: "form-check-label", for: "typeNumber" }, "Number")),
+                                    preact_1.h("div", { class: "form-check form-check-inline" },
+                                        preact_1.h("input", { class: "form-check-input", type: "radio", name: "inlineRadioOptions", id: "typeBoolean", value: "boolean", checked: this.props.dataItem && this.props.dataItem.dataType === "boolean" }),
+                                        preact_1.h("label", { class: "form-check-label", for: "typeBoolean" }, "Boolean")),
+                                    preact_1.h("div", { class: "form-check form-check-inline" },
+                                        preact_1.h("input", { class: "form-check-input", type: "radio", name: "inlineRadioOptions", id: "typeObject", value: "object", checked: this.props.dataItem && this.props.dataItem.dataType === "object" }),
+                                        preact_1.h("label", { class: "form-check-label", for: "typeObject" }, "Object")))))),
+                    preact_1.h("div", { class: "modal-footer" },
+                        preact_1.h("button", { type: "button", class: "btn btn-secondary", "data-dismiss": "modal" }, "Close"),
+                        preact_1.h("button", { type: "button", class: "btn btn-primary", onClick: () => {
+                                this.props.onSave({
+                                    dataKey: $('#editorDataKey').val(),
+                                    dataValue: $('#editorDataValue').val(),
+                                    dataType: $('input[name=inlineRadioOptions]:checked').val(),
+                                });
+                            } }, "Save"))))));
     }
 }
 preact_1.render(preact_1.h(App, null), document.body);

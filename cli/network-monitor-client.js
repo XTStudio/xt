@@ -1,4 +1,5 @@
-(function () {
+"use strict";
+(() => {
     if (URLSession.prototype.$dataTaskSwizzlled === true) {
         return;
     }
@@ -8,7 +9,7 @@
             return v.toString(16);
         });
     }
-    var serverAddress = (function () {
+    let serverAddress = (() => {
         if (typeof window === "object") {
             return window.location.hostname + ":8090";
         }
@@ -17,12 +18,12 @@
         }
         return "127.0.0.1:8090";
     })();
-    URLSession.shared.fetch("http://" + serverAddress + "/network/reset");
-    var dataTaskOriginMethod = URLSession.prototype.dataTask;
+    URLSession.shared.fetch(`http://${serverAddress}/network/reset`);
+    let dataTaskOriginMethod = URLSession.prototype.dataTask;
     URLSession.prototype.dataTask = function () {
-        var requestInfo = arguments[0];
-        var callback = arguments[1];
-        var request = {};
+        let requestInfo = arguments[0];
+        let callback = arguments[1];
+        let request = {};
         if (typeof requestInfo === "string") {
             request.url = requestInfo;
         }
@@ -36,13 +37,13 @@
             request.body = requestInfo.HTTPBody ? requestInfo.HTTPBody.base64EncodedString() : undefined;
         }
         request.ts = new Date().getTime();
-        if (request.url.indexOf("http://" + serverAddress) >= 0) {
+        if (request.url.indexOf(`http://${serverAddress}`) >= 0) {
             return dataTaskOriginMethod.apply(this, arguments);
         }
-        var uuid = uuidv4();
-        var task = dataTaskOriginMethod.apply(this, [arguments[0], function () {
+        const uuid = uuidv4();
+        let task = dataTaskOriginMethod.apply(this, [arguments[0], function () {
                 {
-                    var body = void 0, bodySize = void 0, response = void 0, state = void 0;
+                    let body, bodySize, response, state;
                     if (arguments[0] !== undefined) {
                         bodySize = arguments[0].arrayBuffer().length;
                         if (bodySize > 1024 * 1024 * 1) {
@@ -56,8 +57,8 @@
                         response = {
                             statusCode: arguments[1].statusCode,
                             headers: arguments[1].allHeaderFields,
-                            body: body,
-                            bodySize: bodySize
+                            body,
+                            bodySize,
                         };
                     }
                     else {
@@ -71,9 +72,9 @@
                         state = 1;
                     }
                     {
-                        var writeRequest = new MutableURLRequest("http://" + serverAddress + "/network/write");
+                        let writeRequest = new MutableURLRequest(`http://${serverAddress}/network/write`);
                         writeRequest.HTTPMethod = "POST";
-                        writeRequest.HTTPBody = new Data({ utf8String: JSON.stringify({ uuid: uuid, response: response, state: state }) });
+                        writeRequest.HTTPBody = new Data({ utf8String: JSON.stringify({ uuid, response, state }) });
                         URLSession.shared.fetch(writeRequest);
                     }
                 }
@@ -81,18 +82,18 @@
             }]);
         task.resume = function () {
             {
-                var writeRequest = new MutableURLRequest("http://" + serverAddress + "/network/write");
+                let writeRequest = new MutableURLRequest(`http://${serverAddress}/network/write`);
                 writeRequest.HTTPMethod = "POST";
-                writeRequest.HTTPBody = new Data({ utf8String: JSON.stringify({ uuid: uuid, request: request, state: 0 }) });
+                writeRequest.HTTPBody = new Data({ utf8String: JSON.stringify({ uuid, request, state: 0 }) });
                 URLSession.shared.fetch(writeRequest);
             }
             URLSessionTask.prototype.resume.apply(this);
         };
         task.cancel = function () {
             {
-                var writeRequest = new MutableURLRequest("http://" + serverAddress + "/network/write");
+                let writeRequest = new MutableURLRequest(`http://${serverAddress}/network/write`);
                 writeRequest.HTTPMethod = "POST";
-                writeRequest.HTTPBody = new Data({ utf8String: JSON.stringify({ uuid: uuid, request: request, state: 3 }) });
+                writeRequest.HTTPBody = new Data({ utf8String: JSON.stringify({ uuid, request, state: 3 }) });
                 URLSession.shared.fetch(writeRequest);
             }
             URLSessionTask.prototype.cancel.apply(this);
