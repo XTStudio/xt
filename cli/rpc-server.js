@@ -10,7 +10,7 @@ class RPCServer extends events_1.EventEmitter {
     constructor() {
         super(...arguments);
         this.serverUUID = Math.random().toString();
-        this.clientListeners = [];
+        this.clientListeners = {};
         this.emittedMessages = [];
         this.clientEmittedSeq = {};
     }
@@ -96,19 +96,19 @@ class RPCServer extends events_1.EventEmitter {
             this.clientEmittedSeq[clientUUID] = this.emittedMessages.length;
         }
         else {
-            this.clientListeners.push(() => {
+            this.clientListeners[clientUUID] = () => {
                 this.handleListenRequest(obj, response);
-            });
+            };
         }
     }
     flushListeners() {
-        this.clientListeners.forEach(it => {
+        Object.keys(this.clientListeners).forEach(it => {
             try {
-                it();
+                this.clientListeners[it]();
             }
             catch (error) { }
         });
-        this.clientListeners = [];
+        this.clientListeners = {};
     }
 }
 exports.RPCServer = RPCServer;

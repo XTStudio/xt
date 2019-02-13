@@ -1,4 +1,16 @@
-"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var mEventEmitter;
 //@ts-ignore
 (function (exports) {
@@ -158,84 +170,153 @@ var mEventEmitter;
     mEventEmitter = EventEmitter;
 })(this || {});
 var EventEmitter = mEventEmitter;
+//@ts-ignore
+function doFetch(url, method, timeout, headers, body) {
+    if (headers === void 0) { headers = {}; }
+    if (body === void 0) { body = ""; }
+    //@ts-ignore
+    return new Promise(function (res, rej) {
+        if (typeof MutableURLRequest !== "undefined") {
+            var request = new MutableURLRequest(url, timeout);
+            request.HTTPMethod = "POST";
+            for (var key in headers) {
+                request.setValueForHTTPHeaderField(headers[key], key);
+            }
+            request.HTTPBody = new Data({ utf8String: body });
+            URLSession.shared.fetch(request).then(function (data) {
+                if (data !== undefined) {
+                    res(data.utf8String());
+                }
+                else {
+                    throw Error("no data.");
+                }
+            })["catch"](function (e) {
+                rej(e);
+            });
+        }
+        else if (typeof XMLHttpRequest !== "undefined") {
+            var request_1 = new XMLHttpRequest;
+            request_1.open(method, url, true);
+            request_1.timeout = timeout * 1000;
+            for (var key in headers) {
+                request_1.setRequestHeader(key, headers[key]);
+            }
+            request_1.addEventListener("loadend", function () {
+                res(request_1.responseText);
+            });
+            request_1.addEventListener("error", function (e) {
+                rej(e);
+            });
+            request_1.send(body);
+        }
+        else if (typeof XTSHttpRequest === "function") {
+            // Native
+            var request_2 = new XTSHttpRequest();
+            request_2.open(method, url);
+            for (var key in headers) {
+                request_2.setRequestHeader(key, headers[key]);
+            }
+            request_2.onloadend = function () {
+                if (request_2.status >= 200 && request_2.status < 400) {
+                    res(request_2.responseText);
+                }
+                else {
+                    rej(new Error("error."));
+                }
+            };
+            request_2.send(body);
+        }
+    });
+}
 var RPCTarget;
 (function (RPCTarget) {
     RPCTarget[RPCTarget["Server"] = 0] = "Server";
     RPCTarget[RPCTarget["Clients"] = 1] = "Clients";
 })(RPCTarget || (RPCTarget = {}));
-class RPCClient extends EventEmitter {
-    constructor() {
-        super();
-        this.clientUUID = Math.random().toString();
-        this.endPoint = "http://127.0.0.1:8090/rpc";
-        this.emittedMessages = [];
-        this.polling();
+var RPCClient = /** @class */ (function (_super) {
+    __extends(RPCClient, _super);
+    function RPCClient() {
+        var _this = _super.call(this) || this;
+        _this.clientUUID = Math.random().toString();
+        _this.endPoint = "http://127.0.0.1:8090/rpc";
+        _this.emittedMessages = [];
+        _this.polling();
+        return _this;
     }
-    polling() {
-        let writeRequest = new MutableURLRequest(this.endPoint, 120);
-        writeRequest.HTTPMethod = "POST";
-        writeRequest.HTTPBody = new Data({ utf8String: JSON.stringify({ type: "listen", clientUUID: this.clientUUID }) });
-        URLSession.shared.fetch(writeRequest).then((data) => {
+    RPCClient.prototype.polling = function () {
+        var _this = this;
+        doFetch(this.endPoint, "POST", 120, {}, JSON.stringify({ type: "listen", clientUUID: this.clientUUID })).then(function (text) {
             try {
-                const obj = JSON.parse(data.utf8String());
+                var obj = JSON.parse(text);
                 if (obj.type === "emit") {
-                    obj.payload.forEach((message) => {
-                        if (message.target === RPCTarget.Clients && message.sender !== this.clientUUID) {
-                            this.emit(message.event, message);
+                    obj.payload.forEach(function (message) {
+                        if (message.target === RPCTarget.Clients && message.sender !== _this.clientUUID) {
+                            _this.emit(message.event, message);
                         }
                     });
                 }
             }
             catch (error) { }
-            this.polling();
-        }).catch(() => {
-            this.polling();
+            _this.polling();
+        })["catch"](function () {
+            _this.polling();
         });
-    }
-    emiting() {
+    };
+    RPCClient.prototype.emiting = function () {
+        var _this = this;
         if (this.emiitedTimer !== undefined) {
             return;
         }
-        this.emiitedTimer = setTimeout(() => {
-            let writeRequest = new MutableURLRequest(this.endPoint);
-            writeRequest.HTTPMethod = "POST";
-            writeRequest.HTTPBody = new Data({ utf8String: JSON.stringify({ type: "emit", payload: this.emittedMessages }) });
-            URLSession.shared.fetch(writeRequest).then(() => {
-                this.emiitedTimer = undefined;
-                this.emittedMessages = [];
-            }).catch(() => {
-                this.emiitedTimer = undefined;
-                this.emiting();
+        this.emiitedTimer = setTimeout(function () {
+            doFetch(_this.endPoint, "POST", 15, {}, JSON.stringify({ type: "emit", payload: _this.emittedMessages })).then(function () {
+                _this.emiitedTimer = undefined;
+                _this.emittedMessages = [];
+            })["catch"](function () {
+                _this.emiitedTimer = undefined;
+                _this.emiting();
             });
         }, 100);
-    }
-    emitToServer(event, ...args) {
+    };
+    RPCClient.prototype.emitToServer = function (event) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
         this.emittedMessages.push({
             target: RPCTarget.Server,
             sender: this.clientUUID,
-            event,
-            args
+            event: event,
+            args: args
         });
         this.emiting();
-    }
-    emitToClient(receiverUUID, event, ...args) {
+    };
+    RPCClient.prototype.emitToClient = function (receiverUUID, event) {
+        var args = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            args[_i - 2] = arguments[_i];
+        }
         this.emittedMessages.push({
             target: RPCTarget.Clients,
             sender: this.clientUUID,
             receiver: receiverUUID,
-            event,
-            args
+            event: event,
+            args: args
         });
         this.emiting();
-    }
-    emitToClients(event, ...args) {
+    };
+    RPCClient.prototype.emitToClients = function (event) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
         this.emittedMessages.push({
             target: RPCTarget.Clients,
             sender: this.clientUUID,
-            event,
-            args
+            event: event,
+            args: args
         });
         this.emiting();
-    }
-}
-const rpcClient = new RPCClient();
+    };
+    return RPCClient;
+}(EventEmitter));
+var rpcClient = new RPCClient();

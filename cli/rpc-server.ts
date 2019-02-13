@@ -17,7 +17,7 @@ interface RPCMessage {
 export class RPCServer extends EventEmitter {
 
     private serverUUID = Math.random().toString()
-    private clientListeners: (() => void)[] = []
+    private clientListeners: { [key: string]: () => void } = {}
     private emittedMessages: RPCMessage[] = []
     private clientEmittedSeq: { [key: string]: number } = {}
 
@@ -106,19 +106,19 @@ export class RPCServer extends EventEmitter {
             this.clientEmittedSeq[clientUUID] = this.emittedMessages.length
         }
         else {
-            this.clientListeners.push(() => {
+            this.clientListeners[clientUUID] = () => {
                 this.handleListenRequest(obj, response)
-            })
+            }
         }
     }
 
     private flushListeners() {
-        this.clientListeners.forEach(it => {
+        Object.keys(this.clientListeners).forEach(it => {
             try {
-                it()
+                this.clientListeners[it]()
             } catch (error) { }
         })
-        this.clientListeners = []
+        this.clientListeners = {}
     }
 
 }
