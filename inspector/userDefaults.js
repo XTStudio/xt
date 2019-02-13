@@ -27,24 +27,7 @@ class DataFetcher {
         rpcClient.emitToClients("com.xt.userdefaults.write", undefined, item.dataKey, this.suiteName || undefined);
     }
     editItem(item) {
-        rpcClient.emitToClients("com.xt.userdefaults.write", (() => {
-            if (item.dataType === "string") {
-                return item.dataValue;
-            }
-            else if (item.dataType === "number") {
-                return parseFloat(item.dataValue);
-            }
-            else if (item.dataType === "boolean") {
-                return item.dataValue === "true";
-            }
-            else if (item.dataType === "object") {
-                try {
-                    return JSON.parse(item.dataValue);
-                }
-                catch (error) { }
-                return {};
-            }
-        })(), item.dataKey, this.suiteName);
+        rpcClient.emitToClients("com.xt.userdefaults.write", item.dataValue, item.dataKey, this.suiteName);
     }
 }
 class App extends preact_1.Component {
@@ -81,7 +64,28 @@ class App extends preact_1.Component {
                         this.dataFetcher.deleteItem(it);
                         this.setState({ items: this.state.items.filter(stateData => stateData.dataKey !== it.dataKey) });
                     }, onEditItem: (it, isNewRow) => {
-                        this.dataFetcher.editItem(it);
+                        if (it.dataKey.length === 0 || it.dataValue.length === 0 || it.dataType.length === 0) {
+                            return;
+                        }
+                        const trimedIt = Object.assign({}, it, { dataValue: (() => {
+                                if (it.dataType === "string") {
+                                    return it.dataValue;
+                                }
+                                else if (it.dataType === "number") {
+                                    return parseFloat(it.dataValue);
+                                }
+                                else if (it.dataType === "boolean") {
+                                    return it.dataValue === "true";
+                                }
+                                else if (it.dataType === "object") {
+                                    try {
+                                        return JSON.parse(it.dataValue);
+                                    }
+                                    catch (error) { }
+                                    return {};
+                                }
+                            })() });
+                        this.dataFetcher.editItem(trimedIt);
                         if (isNewRow) {
                             const items = this.state.items.slice();
                             items.push(it);
@@ -182,12 +186,20 @@ class RowEditor extends preact_1.Component {
                             preact_1.h("div", { class: "form-group row" },
                                 preact_1.h("label", { for: "inputEmail3", class: "col-sm-2 col-form-label" }, "Value"),
                                 preact_1.h("div", { class: "col-sm-10" },
-                                    preact_1.h("input", { class: "form-control", id: "editorDataValue", placeholder: "", value: this.props.dataItem ? this.props.dataItem.dataValue : '' }))),
+                                    preact_1.h("input", { class: "form-control", id: "editorDataValue", placeholder: "", value: this.props.dataItem ? this.props.dataItem.dataValue : '', onKeyPress: (e) => {
+                                            if (e.keyCode === 13) {
+                                                this.props.onSave({
+                                                    dataKey: $('#editorDataKey').val(),
+                                                    dataValue: $('#editorDataValue').val(),
+                                                    dataType: $('input[name=inlineRadioOptions]:checked').val(),
+                                                });
+                                            }
+                                        } }))),
                             preact_1.h("div", { class: "form-group row" },
                                 preact_1.h("label", { for: "inputEmail3", class: "col-sm-2 col-form-label" }, "Type"),
                                 preact_1.h("div", { class: "col-sm-10", style: "padding-top: 7px;" },
                                     preact_1.h("div", { class: "form-check form-check-inline" },
-                                        preact_1.h("input", { class: "form-check-input", type: "radio", name: "inlineRadioOptions", id: "typeString", value: "string", checked: this.props.dataItem && this.props.dataItem.dataType === "string" }),
+                                        preact_1.h("input", { class: "form-check-input", type: "radio", name: "inlineRadioOptions", id: "typeString", value: "string", checked: (this.props.dataItem && this.props.dataItem.dataType === "string") || this.props.isNewRow }),
                                         preact_1.h("label", { class: "form-check-label", for: "typeString" }, "String")),
                                     preact_1.h("div", { class: "form-check form-check-inline" },
                                         preact_1.h("input", { class: "form-check-input", type: "radio", name: "inlineRadioOptions", id: "typeNumber", value: "number", checked: this.props.dataItem && this.props.dataItem.dataType === "number" }),
