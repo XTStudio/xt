@@ -53,6 +53,7 @@ declare var URLSessionTask: any
 declare var $__ConnectorHostname: any
 declare var Data: any
 declare var XTSHttpRequest: any
+declare var DispatchQueue: any
 
 var mEventEmitter: typeof EventEmitterDefines;
 
@@ -163,15 +164,28 @@ class RPCClient extends EventEmitter {
 
     emiting() {
         if (this.emiitedTimer !== undefined) { return }
-        this.emiitedTimer = setTimeout(() => {
-            doFetch(this.endPoint, "POST", 15, {}, JSON.stringify({ type: "emit", payload: this.emittedMessages })).then(() => {
-                this.emiitedTimer = undefined
-                this.emittedMessages = []
-            }).catch(() => {
-                this.emiitedTimer = undefined
-                this.emiting()
+        if (typeof setTimeout !== "undefined") {
+            this.emiitedTimer = setTimeout(() => {
+                doFetch(this.endPoint, "POST", 15, {}, JSON.stringify({ type: "emit", payload: this.emittedMessages })).then(() => {
+                    this.emiitedTimer = undefined
+                    this.emittedMessages = []
+                }).catch(() => {
+                    this.emiitedTimer = undefined
+                    this.emiting()
+                })
+            }, 100)
+        }
+        else if (typeof DispatchQueue !== "undefined") {
+            DispatchQueue.main.asyncAfter(0.1, () => {
+                doFetch(this.endPoint, "POST", 15, {}, JSON.stringify({ type: "emit", payload: this.emittedMessages })).then(() => {
+                    this.emiitedTimer = undefined
+                    this.emittedMessages = []
+                }).catch(() => {
+                    this.emiitedTimer = undefined
+                    this.emiting()
+                })
             })
-        }, 100)
+        }
     }
 
     emitToServer(event: string, ...args: any[]) {

@@ -249,15 +249,28 @@ class RPCClient extends EventEmitter {
         if (this.emiitedTimer !== undefined) {
             return;
         }
-        this.emiitedTimer = setTimeout(() => {
-            doFetch(this.endPoint, "POST", 15, {}, JSON.stringify({ type: "emit", payload: this.emittedMessages })).then(() => {
-                this.emiitedTimer = undefined;
-                this.emittedMessages = [];
-            }).catch(() => {
-                this.emiitedTimer = undefined;
-                this.emiting();
+        if (typeof setTimeout !== "undefined") {
+            this.emiitedTimer = setTimeout(() => {
+                doFetch(this.endPoint, "POST", 15, {}, JSON.stringify({ type: "emit", payload: this.emittedMessages })).then(() => {
+                    this.emiitedTimer = undefined;
+                    this.emittedMessages = [];
+                }).catch(() => {
+                    this.emiitedTimer = undefined;
+                    this.emiting();
+                });
+            }, 100);
+        }
+        else if (typeof DispatchQueue !== "undefined") {
+            DispatchQueue.main.asyncAfter(0.1, () => {
+                doFetch(this.endPoint, "POST", 15, {}, JSON.stringify({ type: "emit", payload: this.emittedMessages })).then(() => {
+                    this.emiitedTimer = undefined;
+                    this.emittedMessages = [];
+                }).catch(() => {
+                    this.emiitedTimer = undefined;
+                    this.emiting();
+                });
             });
-        }, 100);
+        }
     }
     emitToServer(event, ...args) {
         this.emittedMessages.push({
