@@ -159,8 +159,8 @@ class ListView extends Component<{ items: DataItem[], onDeleteItem: (item: DataI
     renderRow(row: DataItem) {
         return (
             <tr>
-                <th style="width: 25%; line-height: 30px" scope="row">{row.dataKey}</th>
-                <td style="width: 25%; line-height: 30px">{typeof row.dataValue === "object" ? JSON.stringify(row.dataValue) : String(row.dataValue)}</td>
+                <th style="width: 25%; line-height: 30px; max-width: 200px; overflow: hidden" scope="row">{row.dataKey}</th>
+                <td style="width: 25%; line-height: 30px; max-width: 200px; overflow: hidden">{typeof row.dataValue === "object" ? JSON.stringify(row.dataValue) : String(row.dataValue)}</td>
                 <td style="width: 25%; line-height: 30px">{row.dataType}</td>
                 <td style="width: 25%">
                     <button type="button" class="btn btn-secondary btn-sm" style="transform: scale(0.8,0.8);" onClick={() => {
@@ -239,7 +239,7 @@ class RowEditor extends Component<{ isNewRow: boolean, dataItem: DataItem | unde
                                 <div class="form-group row">
                                     <label for="inputEmail3" class="col-sm-2 col-form-label">Value</label>
                                     <div class="col-sm-10">
-                                        <input class="form-control" id="editorDataValue" placeholder="" value={this.props.dataItem ? this.props.dataItem.dataValue : ''} onKeyPress={(e) => {
+                                        <input class="form-control" id="editorDataValue" placeholder="" value={this.props.dataItem ? (typeof this.props.dataItem.dataValue === "object" ? JSON.stringify(this.props.dataItem.dataValue) : String(this.props.dataItem.dataValue)) : ''} onKeyPress={(e) => {
                                             if (e.keyCode === 13) {
                                                 this.props.onSave({
                                                     dataKey: $('#editorDataKey').val(),

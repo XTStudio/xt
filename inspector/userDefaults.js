@@ -127,8 +127,8 @@ class SuiteBar extends preact_1.Component {
 class ListView extends preact_1.Component {
     renderRow(row) {
         return (preact_1.h("tr", null,
-            preact_1.h("th", { style: "width: 25%; line-height: 30px", scope: "row" }, row.dataKey),
-            preact_1.h("td", { style: "width: 25%; line-height: 30px" }, typeof row.dataValue === "object" ? JSON.stringify(row.dataValue) : String(row.dataValue)),
+            preact_1.h("th", { style: "width: 25%; line-height: 30px; max-width: 200px; overflow: hidden", scope: "row" }, row.dataKey),
+            preact_1.h("td", { style: "width: 25%; line-height: 30px; max-width: 200px; overflow: hidden" }, typeof row.dataValue === "object" ? JSON.stringify(row.dataValue) : String(row.dataValue)),
             preact_1.h("td", { style: "width: 25%; line-height: 30px" }, row.dataType),
             preact_1.h("td", { style: "width: 25%" },
                 preact_1.h("button", { type: "button", class: "btn btn-secondary btn-sm", style: "transform: scale(0.8,0.8);", onClick: () => {
@@ -186,7 +186,7 @@ class RowEditor extends preact_1.Component {
                             preact_1.h("div", { class: "form-group row" },
                                 preact_1.h("label", { for: "inputEmail3", class: "col-sm-2 col-form-label" }, "Value"),
                                 preact_1.h("div", { class: "col-sm-10" },
-                                    preact_1.h("input", { class: "form-control", id: "editorDataValue", placeholder: "", value: this.props.dataItem ? this.props.dataItem.dataValue : '', onKeyPress: (e) => {
+                                    preact_1.h("input", { class: "form-control", id: "editorDataValue", placeholder: "", value: this.props.dataItem ? (typeof this.props.dataItem.dataValue === "object" ? JSON.stringify(this.props.dataItem.dataValue) : String(this.props.dataItem.dataValue)) : '', onKeyPress: (e) => {
                                             if (e.keyCode === 13) {
                                                 this.props.onSave({
                                                     dataKey: $('#editorDataKey').val(),
