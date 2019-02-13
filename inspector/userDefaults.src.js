@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const preact_1 = require("preact");
-const ignoringKeys = ["AddingEmojiKeybordHandled", "Apple", "PK", "NS"];
+const ignoringKeys = ["AddingEmojiKeybordHandled", "Apple", "PK", "NS", "AK"];
 class DataFetcher {
     fetch() {
         clearInterval(this.fetchTimeoutHandler);

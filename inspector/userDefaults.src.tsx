@@ -7,7 +7,7 @@ interface DataItem {
     dataType: string
 }
 
-const ignoringKeys = ["AddingEmojiKeybordHandled", "Apple", "PK", "NS"]
+const ignoringKeys = ["AddingEmojiKeybordHandled", "Apple", "PK", "NS", "AK"]
 
 class DataFetcher {
 
