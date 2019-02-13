@@ -2,17 +2,23 @@ require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c=
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const preact_1 = require("preact");
+const ignoringKeys = ["AddingEmojiKeybordHandled", "Apple", "PK", "NS"];
 class DataFetcher {
     fetch() {
         clearInterval(this.fetchTimeoutHandler);
         return new Promise((res) => {
+            if (this.suiteName !== undefined && this.suiteName.length === 0) {
+                this.suiteName = undefined;
+            }
             this.fetchTimeoutHandler = setInterval(() => {
                 rpcClient.emitToClients("com.xt.userdefaults.list", this.suiteName);
             }, 1000);
             rpcClient.once("com.xt.userdefaults.list.result", (message) => {
                 clearInterval(this.fetchTimeoutHandler);
                 const data = message.args[0].data;
-                res(Object.keys(data).map(it => {
+                res(Object.keys(data).filter(it => {
+                    return ignoringKeys.every(ik => !(it === ik || it.startsWith(ik)));
+                }).map(it => {
                     return {
                         dataKey: it,
                         dataValue: data[it],

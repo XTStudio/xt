@@ -7,6 +7,8 @@ interface DataItem {
     dataType: string
 }
 
+const ignoringKeys = ["AddingEmojiKeybordHandled", "Apple", "PK", "NS"]
+
 class DataFetcher {
 
     suiteName: string | undefined
@@ -15,13 +17,16 @@ class DataFetcher {
     fetch(): Promise<DataItem[]> {
         clearInterval(this.fetchTimeoutHandler)
         return new Promise((res) => {
+            if (this.suiteName !== undefined && this.suiteName.length === 0) { this.suiteName = undefined }
             this.fetchTimeoutHandler = setInterval(() => {
                 rpcClient.emitToClients("com.xt.userdefaults.list", this.suiteName)
             }, 1000)
             rpcClient.once("com.xt.userdefaults.list.result", (message: RPCMessage) => {
                 clearInterval(this.fetchTimeoutHandler)
                 const data = message.args[0].data
-                res(Object.keys(data).map(it => {
+                res(Object.keys(data).filter(it => {
+                    return ignoringKeys.every(ik => !(it === ik || it.startsWith(ik)))
+                }).map(it => {
                     return {
                         dataKey: it,
                         dataValue: data[it],
