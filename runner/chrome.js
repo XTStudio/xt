@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require('fs');
 const child_process = require('child_process');
+const portfinder = require("portfinder");
 class ChromeRunner {
     constructor() {
         this.httpdPort = 9000;
@@ -25,31 +26,13 @@ class ChromeRunner {
             if (!fs.existsSync('./node_modules/.bin/http-server')) {
                 this.installHTTPServer();
             }
-            for (let index = 9000; index < 10000; index++) {
-                if (yield this.checkPort(index)) {
-                    this.httpdPort = index;
-                    break;
-                }
-            }
-            child_process.exec(`node ./node_modules/.bin/http-server -c-1 -p${this.httpdPort}`);
+            this.httpdPort = yield portfinder.getPortPromise({ port: 9000, startPort: 9000, stopPort: 10000 });
+            child_process.exec(`node ./node_modules/.bin/http-server -c-1 -p${this.httpdPort}`, { cwd: './' });
         });
     }
     installHTTPServer() {
         console.log("Installing http-server...");
         child_process.execSync('npm i http-server', { cwd: './' });
-    }
-    checkPort(port) {
-        return new Promise((res) => {
-            var net = require('net');
-            var tester = net.createServer()
-                .once('error', function (err) {
-                res(false);
-            })
-                .once('listening', function () {
-                tester.once('close', function () { res(true); }).close();
-            })
-                .listen(port);
-        });
     }
 }
 exports.ChromeRunner = ChromeRunner;

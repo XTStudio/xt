@@ -6,6 +6,8 @@ const path = require("path");
 const ts = require("typescript");
 const res_bundler_1 = require("./res-bundler");
 const network_monitor_1 = require("./network-monitor");
+const rpc_server_1 = require("./rpc-server");
+const user_defaults_controller_1 = require("./user-defaults-controller");
 const browserify = require('browserify');
 const watchify = require('watchify');
 const tsify = require('../local_modules/tsify');
@@ -23,6 +25,7 @@ class SrcBundler {
         this.builtCodes = {};
         this.reloadingCodes = {};
         this.versionResponsesHandler = [];
+        this.rpcServer = new rpc_server_1.RPCServer;
         this.networkMonitor = new network_monitor_1.NetworkMonitor;
         if (isDebugging) {
             this.dist = "node_modules/.tmp/app.js";
@@ -208,8 +211,10 @@ class SrcBundler {
             try {
                 let data = fs.readFileSync(this.dist, { encoding: "utf-8" });
                 const debuggerScript = fs.readFileSync(path.resolve('node_modules', 'tiny-debugger', 'client/index.js'), { encoding: "utf-8" });
-                const networkMonitorScript = fs.readFileSync(path.resolve(__dirname, "network-monitor-client.js"), { encoding: "utf-8" });
-                data = `var $__debugger;(function(){${debuggerScript.replace('var $debugger = ', '$__debugger =')}})();$__debugger.start();\n${networkMonitorScript};\n${data}`;
+                const networkMonitorScript = `;(function(){${fs.readFileSync(path.resolve(__dirname, "network-monitor-client.js"), { encoding: "utf-8" })}})();`;
+                const userDefaultsScript = `(${user_defaults_controller_1.userDefaultsControllerScript.toString()})();`;
+                const rpcScript = `;(function(){${fs.readFileSync(path.resolve(__dirname, "rpc-client.js"), { encoding: "utf-8" })};${userDefaultsScript};})();`;
+                data = `var $__debugger;(function(){${debuggerScript.replace('var $debugger = ', '$__debugger =')}})();$__debugger.start();\n${networkMonitorScript};\n${rpcScript}\n${data}`;
                 fs.writeFileSync(this.dist, data);
             }
             catch (error) { }
@@ -291,6 +296,9 @@ class SrcBundler {
                 }
                 else if (request.url && request.url.startsWith("/network/")) {
                     this.networkMonitor.handleRequest(request, response);
+                }
+                else if (request.url && request.url.startsWith("/rpc")) {
+                    this.rpcServer.handleRequest(request, response);
                 }
                 else {
                     response.end("");

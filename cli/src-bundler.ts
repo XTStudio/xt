@@ -4,6 +4,8 @@ import * as path from "path";
 import * as ts from "typescript";
 import { ResBundler } from "./res-bundler";
 import { NetworkMonitor } from "./network-monitor";
+import { RPCServer } from "./rpc-server";
+import { userDefaultsControllerScript } from "./user-defaults-controller";
 const browserify = require('browserify')
 const watchify = require('watchify')
 const tsify = require('../local_modules/tsify')
@@ -12,6 +14,9 @@ const strip_json_comments = require('strip-json-comments')
 const { TinyDebugger } = require('tiny-debugger/server/index')
 require("./utils").consoleMethodSwizzler()
 
+declare var window: any
+declare var UserDefaults: any
+
 export class SrcBundler {
 
     private resBundler = new ResBundler
@@ -19,6 +24,7 @@ export class SrcBundler {
     private builtCodes: { [key: string]: string } = {}
     private reloadingCodes: { [key: string]: string } = {}
     private versionResponsesHandler: (() => void)[] = []
+    private rpcServer = new RPCServer
     private networkMonitor = new NetworkMonitor
 
     constructor(private dist: string, private isWatching: boolean, private isDebugging: boolean = false) {
@@ -206,8 +212,10 @@ export class SrcBundler {
             try {
                 let data = fs.readFileSync(this.dist, { encoding: "utf-8" })
                 const debuggerScript = fs.readFileSync(path.resolve('node_modules', 'tiny-debugger', 'client/index.js'), { encoding: "utf-8" })
-                const networkMonitorScript = fs.readFileSync(path.resolve(__dirname, "network-monitor-client.js"), { encoding: "utf-8" })
-                data = `var $__debugger;(function(){${debuggerScript.replace('var $debugger = ', '$__debugger =')}})();$__debugger.start();\n${networkMonitorScript};\n${data}`
+                const networkMonitorScript = `;(function(){${fs.readFileSync(path.resolve(__dirname, "network-monitor-client.js"), { encoding: "utf-8" })}})();`
+                const userDefaultsScript = `(${userDefaultsControllerScript.toString()})();`
+                const rpcScript = `;(function(){${fs.readFileSync(path.resolve(__dirname, "rpc-client.js"), { encoding: "utf-8" })};${userDefaultsScript};})();`
+                data = `var $__debugger;(function(){${debuggerScript.replace('var $debugger = ', '$__debugger =')}})();$__debugger.start();\n${networkMonitorScript};\n${rpcScript}\n${data}`
                 fs.writeFileSync(this.dist, data)
             } catch (error) { }
         }
@@ -287,6 +295,9 @@ export class SrcBundler {
                 }
                 else if (request.url && request.url.startsWith("/network/")) {
                     this.networkMonitor.handleRequest(request, response)
+                }
+                else if (request.url && request.url.startsWith("/rpc")) {
+                    this.rpcServer.handleRequest(request, response)
                 }
                 else {
                     response.end("")

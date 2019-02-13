@@ -133,6 +133,7 @@ declare enum URLSessionTaskState {
 declare class UserDefaults {
     static readonly standard: UserDefaults
     constructor(suiteName?: string)
+    dump(): any
     valueForKey(forKey: string): any | undefined
     setValue(value: any, forKey: string): void
     reset(): void

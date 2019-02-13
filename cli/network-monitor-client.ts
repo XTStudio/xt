@@ -47,7 +47,7 @@ declare var Data: any
             request.body = requestInfo.HTTPBody ? requestInfo.HTTPBody.base64EncodedString() : undefined
         }
         request.ts = new Date().getTime()
-        if (request.url === `http://${serverAddress}/network/write`) { return dataTaskOriginMethod.apply(this, arguments) }
+        if (request.url.indexOf(`http://${serverAddress}`) >= 0) { return dataTaskOriginMethod.apply(this, arguments) }
         const uuid = uuidv4()
         let task = dataTaskOriginMethod.apply(this, [arguments[0], function () {
             {
