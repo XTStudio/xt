@@ -209,6 +209,10 @@ module.exports = function (ts) {
 			beforeTransformers.push(require('./LogTransfomer').transformer)
 		}
 
+		if (process.argv.indexOf("--wx") > 0 || process.argv.indexOf("wx") > 0) {
+			beforeTransformers = []
+		}
+
 		var emitOutput = program.emit(undefined, undefined, undefined, undefined, {
 			before: beforeTransformers
 		});
