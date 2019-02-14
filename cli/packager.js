@@ -36,7 +36,12 @@ class Packager {
             require('child_process').execSync(`lsof -n -i4TCP:8091 | grep LISTEN | awk '{ print $2 }' | xargs kill`);
         }
         catch (error) { }
-        this.srcBundler = new src_bundler_1.SrcBundler("", this.isWatching, true);
+        if (typeof this.dist === "string" && this.dist.indexOf("platform/wx") >= 0) {
+            this.srcBundler = new src_bundler_1.SrcBundler(this.dist, this.isWatching, true);
+        }
+        else {
+            this.srcBundler = new src_bundler_1.SrcBundler("", this.isWatching, true);
+        }
         this.srcBundler.setupTinyDebugger();
         return this.srcBundler.triggerDebug(port);
     }

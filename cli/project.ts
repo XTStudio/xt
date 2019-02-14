@@ -80,15 +80,8 @@ global.main = new MainViewController
                 {
                     "type": "xt",
                     "request": "launch",
-                    "name": "Debug XT on Android Emulator",
+                    "name": "Debug XT on Android",
                     "platform": "android",
-                    "workspace": "\${workspaceFolder}"
-                },
-                {
-                    "type": "xt",
-                    "request": "launch",
-                    "name": "Debug XT on iOS Simulator",
-                    "platform": "ios",
                     "workspace": "\${workspaceFolder}"
                 },
                 {
@@ -103,6 +96,13 @@ global.main = new MainViewController
                     "request": "launch",
                     "name": "Debug XT on iPhone",
                     "platform": "iphone",
+                    "workspace": "\${workspaceFolder}"
+                },
+                {
+                    "type": "xt",
+                    "request": "launch",
+                    "name": "Debug XT on 微信小程序",
+                    "platform": "wx",
                     "workspace": "\${workspaceFolder}"
                 },
                 {

@@ -13,6 +13,7 @@ const { ChromeRunner } = require('./runner/chrome')
 const { iOSRunner } = require('./runner/ios')
 const { AndroidRunner } = require('./runner/android')
 const { QRCodeRunner } = require('./runner/qrcode')
+const { WXRunner } = require('./runner/wx')
 
 program
     .version(JSON.parse(fs.readFileSync(__dirname + "/package.json", { encoding: "utf-8" })).version)
@@ -26,6 +27,7 @@ program
     .option('--platform [platform]')
     .option('--device [device]')
     .option('--os [os]')
+    .option('--wx')
     .parse(process.argv)
 
 const runClient = () => {
@@ -51,13 +53,17 @@ const runClient = () => {
     else if (program.run === "android") {
         new AndroidRunner().run()
     }
+    else if (program.run === "wx") {
+        console.info("微信小程序暂未支持断点调试、Log、监视器等调试功能。")
+        new WXRunner().run()
+    }
 }
 
 if (program.init) {
     new ProjectInitializer().init()
 }
 else if (program.debug) {
-    new Packager("", true).debug(program.port || 8090).then(() => {
+    new Packager(program.run === "wx" ? "platform/wx/src/app.js" : "", true).debug(program.port || 8090).then(() => {
         runClient()
     })
 }
