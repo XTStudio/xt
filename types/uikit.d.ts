@@ -1079,7 +1079,9 @@ declare class UILayoutController {
     right(expression: LayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
     bottom(expression: LayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
     width(expression: LayoutExpression, toView?: UIView | undefined): UILayoutController
+    maxWidth(expression: LayoutExpression): UILayoutController
     height(expression: LayoutExpression, toView?: UIView | undefined): UILayoutController
+    maxHeight(expression: LayoutExpression): UILayoutController
     center(toView?: UIView | undefined): UILayoutController
     centerX(expression?: LayoutExpression, toView?: UIView | undefined): UILayoutController
     centerY(expression?: LayoutExpression, toView?: UIView | undefined): UILayoutController
