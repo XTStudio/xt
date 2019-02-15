@@ -173,7 +173,7 @@ declare function UIRangeMake(location: number, length: number): UIRange
 
 declare class UIView {
     readonly layer: CALayer
-    layoutController: UILayoutController
+    readonly layoutController: UILayoutController
     makeConstraints(maker: (layoutController: UILayoutController) => void): void
     frame: UIRect
     bounds: UIRect
