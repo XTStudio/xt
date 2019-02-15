@@ -1063,7 +1063,9 @@ declare class UIMenu {
     show(inView: UIView): void
 }
 
-declare type LayoutExpression = number | string | ((relativeFrame: UIRect) => number)
+declare function UIReload(reloadIdentifier: string, reloadCallback: (owner: any) => any): any
+
+declare type UILayoutExpression = number | string | ((relativeFrame: UIRect) => number)
 
 declare enum UILayoutAlignment {
     Middle,
@@ -1074,17 +1076,17 @@ declare enum UILayoutAlignment {
 declare class UILayoutController {
     apply(): void
     clear(): void
-    left(expression: LayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
-    top(expression: LayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
-    right(expression: LayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
-    bottom(expression: LayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
-    width(expression: LayoutExpression, toView?: UIView | undefined): UILayoutController
-    maxWidth(expression: LayoutExpression): UILayoutController
-    height(expression: LayoutExpression, toView?: UIView | undefined): UILayoutController
-    maxHeight(expression: LayoutExpression): UILayoutController
+    left(expression: UILayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
+    top(expression: UILayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
+    right(expression: UILayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
+    bottom(expression: UILayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
+    width(expression: UILayoutExpression, toView?: UIView | undefined): UILayoutController
+    maxWidth(expression: UILayoutExpression): UILayoutController
+    height(expression: UILayoutExpression, toView?: UIView | undefined): UILayoutController
+    maxHeight(expression: UILayoutExpression): UILayoutController
     center(toView?: UIView | undefined): UILayoutController
-    centerX(expression?: LayoutExpression, toView?: UIView | undefined): UILayoutController
-    centerY(expression?: LayoutExpression, toView?: UIView | undefined): UILayoutController
+    centerX(expression?: UILayoutExpression, toView?: UIView | undefined): UILayoutController
+    centerY(expression?: UILayoutExpression, toView?: UIView | undefined): UILayoutController
     full(toView?: UIView | undefined): UILayoutController
     edge(inset: UIEdgeInsets, toView?: UIView | undefined): UILayoutController
 }
