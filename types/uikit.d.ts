@@ -173,6 +173,8 @@ declare function UIRangeMake(location: number, length: number): UIRange
 
 declare class UIView {
     readonly layer: CALayer
+    layoutController: UILayoutController
+    makeConstraints(maker: (layoutController: UILayoutController) => void): void
     frame: UIRect
     bounds: UIRect
     center: UIPoint
@@ -937,8 +939,7 @@ declare class UIRotationGestureRecognizer extends UIGestureRecognizer {
 declare class UIColor {
     static readonly black: UIColor
     static readonly clear: UIColor
-    static readonly gray: UIColor // deprecated.
-    static readonly grey: UIColor
+    static readonly gray: UIColor
     static readonly red: UIColor
     static readonly yellow: UIColor
     static readonly green: UIColor
@@ -1062,4 +1063,26 @@ declare class UIMenu {
     show(inView: UIView): void
 }
 
-declare function UIReload(reloadIdentifier: string, reloadCallback: (owner: any) => any): any
+declare type LayoutExpression = number | string | ((relativeFrame: UIRect) => number)
+
+declare enum UILayoutAlignment {
+    Middle,
+    Start,
+    End,
+}
+
+declare class UILayoutController {
+    apply(): void
+    clear(): void
+    left(expression: LayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
+    top(expression: LayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
+    right(expression: LayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
+    bottom(expression: LayoutExpression, toView?: UIView | undefined, toViewAlignment?: UILayoutAlignment, targetViewAlignment?: UILayoutAlignment): UILayoutController
+    width(expression: LayoutExpression, toView?: UIView | undefined): UILayoutController
+    height(expression: LayoutExpression, toView?: UIView | undefined): UILayoutController
+    center(toView?: UIView | undefined): UILayoutController
+    centerX(expression?: LayoutExpression, toView?: UIView | undefined): UILayoutController
+    centerY(expression?: LayoutExpression, toView?: UIView | undefined): UILayoutController
+    full(toView?: UIView | undefined): UILayoutController
+    edge(inset: UIEdgeInsets, toView?: UIView | undefined): UILayoutController
+}
